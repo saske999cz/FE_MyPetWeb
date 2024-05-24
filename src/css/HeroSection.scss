@@ -1,0 +1,25 @@
+video {
+  object-fit: cover;
+  background-color: black;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    position: absolute;
+    top: 0;
+    opacity: 0.98;
+    min-height: 600px;
+  aspect-ratio: 16/9;
+  }
+
+.side_text{
+  z-index: 1;
+}
+
+.hero_container{
+  min-width: 800px;
+}
+
+
+  
+  
+  
