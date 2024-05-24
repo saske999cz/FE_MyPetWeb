@@ -127,19 +127,17 @@ const Header = () => {
 					)}
 				</Popover>
 				<Menu as="div" className="relative">
-					<div>
-						<MenuButton className="ml-2 flex flex-row gap-2 justify-between items-center text-sm ">
-							<div
-								className="h-10 w-10 rounded-full bg-sky-500 bg-cover bg-no-repeat bg-center border-cyan-600 border-t"
-								style={{ backgroundImage: 'url("https://source.unsplash.com/80x80?face")' }}
-							>
-							</div>
-							<div className='flex flex-col items-start'>
-								<span className='text-black font-bold'>Marc Backes</span>
-								<span className='text-gray-700'>@marcbackes</span>
-							</div>
-						</MenuButton>
-					</div>
+					<MenuButton className="ml-2 flex flex-row gap-2 justify-between items-center text-sm ">
+						<div
+							className="h-10 w-10 rounded-full bg-sky-500 bg-cover bg-no-repeat bg-center border-cyan-600 border-t"
+							style={{ backgroundImage: 'url("https://source.unsplash.com/80x80?face")' }}
+						>
+						</div>
+						<div className='flex flex-col items-start'>
+							<span className='text-black font-bold'>Marc Backes</span>
+							<span className='text-gray-700'>@marcbackes</span>
+						</div>
+					</MenuButton>
 					<Transition
 						as={Fragment}
 						enter="transition ease-out duration-100"
