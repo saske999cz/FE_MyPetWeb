@@ -19,7 +19,7 @@ export const DASHBOARD_SIDEBAR_TOP_LINKS = [
 	{
 		key: 'products',
 		label: 'Products',
-		path: '/products',
+		path: '/dashboard/products',
 		icon: <HiOutlineCube />
 	},
 	{

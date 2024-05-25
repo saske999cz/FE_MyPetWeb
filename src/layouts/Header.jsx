@@ -9,7 +9,6 @@ const Header = () => {
 	const messageCount = 5
 	const notificationCount = 10
 
-
 	return (
 		<div className="bg-white h-16 px-4 flex items-center border-b border-gray-200 justify-between">
 			<div className="relative">

@@ -30,9 +30,9 @@ function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', is
 					<MenuItems className="absolute right-0 w-40 -mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
 						<div className="py-1">
 							<MenuItem>
-								{({ active }) => (
+								{({ focus }) => (
 									<button
-										className={`${active ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
+										className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
 									>
 										<FaClockRotateLeft />
 										Last day
@@ -40,9 +40,9 @@ function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', is
 								)}
 							</MenuItem>
 							<MenuItem>
-								{({ active }) => (
+								{({ focus }) => (
 									<button
-										className={`${active ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
+										className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
 									>
 										<FaClockRotateLeft />
 										Last week
@@ -50,9 +50,9 @@ function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', is
 								)}
 							</MenuItem>
 							<MenuItem>
-								{({ active }) => (
+								{({ focus }) => (
 									<button
-										className={`${active ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
+										className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
 									>
 										<FaClockRotateLeft />
 										Last month
@@ -60,9 +60,9 @@ function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', is
 								)}
 							</MenuItem>
 							<MenuItem>
-								{({ active }) => (
+								{({ focus }) => (
 									<button
-										className={`${active ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
+										className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
 									>
 										<FaClockRotateLeft />
 										Last year
