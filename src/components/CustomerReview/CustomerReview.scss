@@ -1,0 +1,66 @@
+.left-top {
+    >span {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        border-style: solid;
+        border-width: 2px;
+        border-color: #b34512;
+        width: fit-content;
+
+        img {
+            background: #fff;
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            object-fit: cover;
+        }
+    }
+}
+
+.right-bottom-left {
+    &:hover {
+        transition: 0.2s;
+        cursor: pointer;
+
+        .report-icon {
+            color: red
+        }
+
+        .report-text {
+            text-decoration: underline;
+        }
+    }
+}
+
+.right-bottom-right {
+    &:hover {
+        transition: 0.2s;
+        cursor: pointer;
+
+        .like-icon {
+            color: blue
+        }
+
+        .like-text {
+            text-decoration: underline;
+        }
+    }
+}
+
+.reply-wrapper {
+    width: calc(100% - 60px);
+}
+
+.right-editor .ql-toolbar {
+    background-color: #ccc;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.right-editor .ql-container {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
