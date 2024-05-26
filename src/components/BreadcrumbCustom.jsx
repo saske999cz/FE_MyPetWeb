@@ -25,6 +25,12 @@ const BreadcrumbCustom = ({ setTitle }) => {
       case '/dashboard/product-update':
         title = 'Product Update';
         break;
+      case '/dashboard/invoice-list':
+        title = 'Invoice List';
+        break;
+      case '/dashboard/invoice-view':
+        title = 'Invoice View';
+        break;
       default:
         title = '';
     }
