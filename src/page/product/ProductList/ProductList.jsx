@@ -1,17 +1,16 @@
-import React, { Fragment, useState } from 'react';
-import { HiOutlineTrendingUp } from 'react-icons/hi';
-import { IoBagHandle, IoPieChart, IoPeople, IoCart, IoStar } from 'react-icons/io5';
+import React, { Fragment } from 'react';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FaClockRotateLeft } from "react-icons/fa6";
 import { FaBagShopping } from "react-icons/fa6";
-import { Breadcrumb, Select, Table } from 'antd';
+import { Select, Table } from 'antd';
 import { MdCategory } from "react-icons/md";
 import { VscFeedback } from "react-icons/vsc";
 import { FaEye, FaPencilAlt, FaTrash } from "react-icons/fa";
+import { useNavigate } from 'react-router-dom';
 import Search from 'antd/es/input/Search';
-import '../css/Product.scss'
+import './ProductList.scss'
 
 function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', isLastCard = false }) {
   return (
@@ -84,7 +83,8 @@ function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', is
   );
 }
 
-const Product = () => {
+const ProductList = () => {
+  const navigate = useNavigate()
   const columns = [
     {
       title: 'Product Name',
@@ -118,13 +118,13 @@ const Product = () => {
       title: 'Action',
       render: (text, record) => (
         <div className="flex flex-row items-center justify-evenly space-x-2 w-full my-1">
-          <button className='bg-purple-200 rounded-md p-1.5'>
+          <button onClick={handleViewProduct} className='bg-purple-200 rounded-md p-1.5'>
             <FaEye size={18} className='text-purple-600' />
           </button>
-          <button className='bg-green-200 rounded-md p-1.5'>
+          <button onClick={handleUpdateProduct} className='bg-green-200 rounded-md p-1.5'>
             <FaPencilAlt size={18} className='text-green-600' />
           </button>
-          <button className='bg-red-200 rounded-md p-1.5'>
+          <button onClick={handleDeleteProduct} className='bg-red-200 rounded-md p-1.5'>
             <FaTrash size={18} className='text-red-600' />
           </button>
         </div>
@@ -155,22 +155,18 @@ const Product = () => {
 
   const onSearch = (value, _e, info) => console.log(info?.source, value);
 
+  const handleViewProduct = () => {
+    navigate('/dashboard/product-view')
+  }
+
+  const handleUpdateProduct = () => {
+    
+  }
+  const handleDeleteProduct = () => {
+    
+  }
   return (
     <div className='flex flex-col gap-4'>
-      <div className='flex flex-row justify-between items-center rounded-lg p-6 bg-white'>
-        <h2 className='text-2xl font-bold'>List Products</h2>
-        <Breadcrumb
-          separator="~"
-          items={[
-            {
-              title: <a href="/dashboard">Dashboard</a>,
-            },
-            {
-              title: <span>Products</span>,
-            },
-          ]}
-        />
-      </div>
       <div className='flex flex-row justify-between items-center gap-10 mt-4'>
         <BoxWrapper className="bg-gradient-to-t from-blue-600 to-blue-400 text-white">
           <div className="flex flex-col items-start justify-between w-full pl-2">
@@ -215,7 +211,7 @@ const Product = () => {
           </div>
         </BoxWrapper>
       </div>
-      <div className='flex flex-col items-start justify-between bg-white p-6'>
+      <div className='flex flex-col items-start justify-between bg-white p-6 rounded-md'>
         <div className='flex flex-row items-center justify-between w-full gap-12 mb-6'>
           <div className='flex flex-row items-center justify-between gap-6'>
             <div className='flex flex-col items-start'>
@@ -297,4 +293,4 @@ const Product = () => {
   )
 }
 
-export default Product
+export default ProductList
