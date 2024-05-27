@@ -13,10 +13,9 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-
           <Route path="/dashboard" element={<Layout />}>
             <Route index element={<Dashboard />} />
-            <Route path="product" element={<Product />} />  
+            <Route path="product" element={<Product />} />
           </Route>
         </Routes>
       </BrowserRouter>
