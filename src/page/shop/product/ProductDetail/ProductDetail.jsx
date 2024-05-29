@@ -4,9 +4,9 @@ import { BiSolidCategoryAlt, BiSolidCommentDetail } from "react-icons/bi";
 import { MdOutlineProductionQuantityLimits, MdPublishedWithChanges, MdSell, MdOutlineUpdate } from "react-icons/md";
 import { GrCurrency } from "react-icons/gr";
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import CustomerReview from '../../../components/CustomerReview/CustomerReview';
-import avatar1 from '../../../assets/images/avatar1.jpg'
-import avatar2 from '../../../assets/images/avatar2.jpg'
+import CustomerReview from '../../../../components/CustomerReview/CustomerReview';
+import avatar1 from '../../../../assets/images/avatar1.jpg'
+import avatar2 from '../../../../assets/images/avatar2.jpg'
 import './ProductDetail.scss';
 
 const ProductDetail = () => {

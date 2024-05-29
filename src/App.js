@@ -1,65 +1,35 @@
 import "./css/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "./page/Login";
 import LandingPage from "./page/LandingPage";
 import Dashboard from "./page/Dashboard";
 import Layout from "./layouts/layout";
 import ScrollToTop from "./utils/ScrollToTop";
 import { ToastContainer } from "react-toastify";
-import ProductList from "./page/product/ProductList/ProductList";
-import ProductDetail from "./page/product/ProductDetail/ProductDetail";
-import ProductUpdate from "./page/product/ProductUpdate/ProductUpdate";
+import ProductList from "./page/shop/product/ProductList/ProductList";
+import ProductDetail from "./page/shop/product/ProductDetail/ProductDetail";
+import ProductUpdate from "./page/shop/product/ProductUpdate/ProductUpdate";
 import Unauthorized from "./page/unauthorized/Unauthorized";
 import NotFound from "./page/notFound/NotFound";
-import InvoiceList from "./page/invoice/InvoiceList/InvoiceList";
-import InvoiceDetail from "./page/invoice/InvoiceDetail/InvoiceDetail";
+import InvoiceList from "./page/shop/invoice/InvoiceList/InvoiceList";
+import InvoiceDetail from "./page/shop/invoice/InvoiceDetail/InvoiceDetail";
+import Settings from "./page/settings/Settings";
+import Login from "./page/login/Login";
+import Register from "./page/register/Register";
+import ForgotPassword from "./page/forgotPassword/ForgotPassword";
+import "react-toastify/dist/ReactToastify.css";
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
 function App() {
+  const ROLE_ADMIN = "ROLE_ADMIN"
   const ROLE_SHOP = "ROLE_SHOP"
   const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER"
   const ROLE_AID_CENTER = "ROLE_AID_CENTER"
-  const ROLE_ADMIN = "ROLE_ADMIN"
 
-  const ShopRoute = ({ element }) => {
-    // const roleShop = localStorage.getItem("role").replace(/"/g, "")
+  const AuthRoute = ({ children, roles }) => {
+    const role = localStorage.getItem("role")?.replace(/"/g, "");
 
-    // if (roleShop === ROLE_SHOP) {
-    //   return element
-    // } else {
-    //   return <Navigate to="/unauthorized" replace />
-    // }
-    return element
-  }
-
-  const MedicalCenterRoute = ({ element }) => {
-    const roleMedicalCenter = localStorage.getItem("role").replace(/"/g, "")
-
-    if (roleMedicalCenter === ROLE_MEDICAL_CENTER) {
-      return element
-    } else {
-      return <Navigate to="/unauthorized" replace />
-    }
-  }
-
-  const AidCenterRoute = ({ element }) => {
-    const roleAidCenter = localStorage.getItem("role").replace(/"/g, "")
-
-    if (roleAidCenter === ROLE_AID_CENTER) {
-      return element
-    } else {
-      return <Navigate to="/unauthorized" replace />
-    }
-  }
-
-  const AdminRoute = ({ element }) => {
-    const roleAdmin = localStorage.getItem("role").replace(/"/g, "")
-
-    if (roleAdmin === ROLE_ADMIN) {
-      return element
-    } else {
-      return <Navigate to="/unauthorized" replace />
-    }
-  }
+    return roles.includes(role) ? children : <Navigate to="/unauthorized" replace />;
+  };
 
   return (
     <div className="App">
@@ -68,15 +38,40 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* shop routes */}
-          <Route path="/dashboard" element={<ShopRoute element={<Layout />} />}>
+          {/* auth routes */}
+          <Route
+            path="/dashboard"
+            element={
+              <AuthRoute roles={[ROLE_ADMIN, ROLE_SHOP, ROLE_MEDICAL_CENTER, ROLE_AID_CENTER]}>
+                <Layout />
+              </AuthRoute>}
+          >
             <Route index element={<Dashboard />} />
-            <Route path="product-list" element={<ProductList />} />  
-            <Route path="product-view" element={<ProductDetail />} />  
-            <Route path="product-update" element={<ProductUpdate />} />  
-            <Route path="invoice-list" element={<InvoiceList />} />  
-            <Route path="invoice-view" element={<InvoiceDetail />} />  
+
+            {/* Shop routes */}
+            <Route
+              path="product-list"
+              element={<AuthRoute roles={[ROLE_SHOP]}><ProductList /></AuthRoute>}
+            />
+            <Route
+              path="product-view"
+              element={<AuthRoute roles={[ROLE_SHOP]}><ProductDetail /></AuthRoute>}
+            />
+            <Route
+              path="product-update"
+              element={<AuthRoute roles={[ROLE_SHOP]}><ProductUpdate /></AuthRoute>}
+            />
+            <Route
+              path="invoice-list"
+              element={<AuthRoute roles={[ROLE_SHOP]}><InvoiceList /></AuthRoute>}
+            />
+            <Route
+              path="invoice-view"
+              element={<AuthRoute roles={[ROLE_SHOP]}><InvoiceDetail /></AuthRoute>}
+            />
           </Route>
 
           {/* Unauthorized Page */}

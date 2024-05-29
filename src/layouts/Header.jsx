@@ -1,13 +1,21 @@
-import React, { Fragment } from 'react'
+import React, { Fragment, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Menu, MenuButton, MenuItem, MenuItems, Popover, PopoverButton, PopoverPanel, Transition } from '@headlessui/react'
 import { HiOutlineBell, HiOutlineSearch, HiOutlineChatAlt, HiOutlineMail, HiOutlineUserCircle, HiOutlineCog, HiOutlineLogout } from 'react-icons/hi'
 import classNames from 'classnames'
+import { LazyLoadImage } from 'react-lazy-load-image-component'
+import AuthUser from '../utils/AuthUser'
 
-const Header = () => {
+
+const Header = ({ username, email, avatar }) => {
+  const { logout } = AuthUser()
 	const navigate = useNavigate()
 	const messageCount = 5
 	const notificationCount = 10
+
+  const handleLogout = () => {
+    logout()
+  }
 
 	return (
 		<div className="bg-white h-16 px-4 flex items-center border-b border-gray-200 justify-between">
@@ -127,14 +135,17 @@ const Header = () => {
 				</Popover>
 				<Menu as="div" className="relative">
 					<MenuButton className="ml-2 flex flex-row gap-2 justify-between items-center text-sm ">
-						<div
-							className="h-10 w-10 rounded-full bg-sky-500 bg-cover bg-no-repeat bg-center border-cyan-600 border-t"
-							style={{ backgroundImage: 'url("https://source.unsplash.com/80x80?face")' }}
-						>
-						</div>
+						<LazyLoadImage
+              className="h-10 w-10 rounded-full bg-sky-500 bg-cover bg-no-repeat bg-center border-cyan-600 border-t"
+              key={avatar}
+              src={avatar}
+              alt='Avatar'
+              effect='blur'
+              placeholderSrc={avatar}
+            />
 						<div className='flex flex-col items-start'>
-							<span className='text-black font-bold'>Marc Backes</span>
-							<span className='text-gray-700'>@marcbackes</span>
+							<span className='text-black font-bold'>{username}</span>
+							<span className='text-gray-700'>{email}</span>
 						</div>
 					</MenuButton>
 					<Transition
@@ -178,6 +189,7 @@ const Header = () => {
 							<MenuItem>
 								{({ focus }) => (
 									<div
+                    onClick={handleLogout}
 										className={classNames(
 											focus && 'bg-gray-100',
 											'active:bg-gray-200 flex flex-row items-center gap-2 rounded-sm px-3 py-2 text-gray-700 cursor-pointer focus:bg-gray-200'
