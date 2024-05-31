@@ -18,6 +18,11 @@ import { BiSolidCategory } from 'react-icons/bi';
 import Column from 'antd/es/table/Column';
 import Swal from 'sweetalert2';
 import { format } from 'date-fns';
+import { BeatLoader } from 'react-spinners';
+import { storage } from '../../../../utils/firebase';
+import { getDownloadURL, listAll, ref } from 'firebase/storage';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import loading from '../../../../assets/images/loading.png'
 
 function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', isLastCard = false }) {
   return (
@@ -95,6 +100,8 @@ const ProductList = () => {
   const navigate = useNavigate()
   const TOOLTIP_MESSAGE = "Need to combine with other * to search"
 
+  const [loading, setLoading] = useState(true);
+
   // --------------     PAGINATION STATE     --------------
   const DEFAULT_CURRENT_PAGE_NUMBER = 1;
   const DEFAULT_PAGE_SIZE_NUMBER = 10;
@@ -116,6 +123,7 @@ const ProductList = () => {
   const HIGHEST_RATING_FILTER = 'Highest Rating'
   const PRICE_ASCENDING_FILTER = 'Price Acsending'
   const PRICE_DESCENDING_FILTER = 'Price Descending'
+  const SOLD_OUT = 'Sold Out'
   const FIVE_STAR_FILTER = 5
   const FOUR_STAR_FILTER = 4
   const THREE_STAR_FILTER = 3
@@ -126,11 +134,12 @@ const ProductList = () => {
   const [ratingDeleted, setRatingDeleted] = useState(0)
 
   const listFilter = [
-    ALL_FILTER, 
-    BEST_SELLING_FILTER, 
-    HIGHEST_RATING_FILTER, 
-    PRICE_ASCENDING_FILTER, 
-    PRICE_DESCENDING_FILTER, 
+    ALL_FILTER,
+    BEST_SELLING_FILTER,
+    HIGHEST_RATING_FILTER,
+    PRICE_ASCENDING_FILTER,
+    PRICE_DESCENDING_FILTER,
+    SOLD_OUT,
     FIVE_STAR_FILTER,
     FOUR_STAR_FILTER,
     THREE_STAR_FILTER,
@@ -246,7 +255,7 @@ const ProductList = () => {
 
   // --------------     ACTION HANDLER     --------------
   const handleViewProduct = (record) => {
-    navigate('/dashboard/product-view')
+    navigate(`/dashboard/product-view/${record.id}`)
   }
 
   const handleUpdateProduct = (record) => {
@@ -371,10 +380,9 @@ const ProductList = () => {
 
   // --------------------------     Fetch API     --------------------------
   useEffect(() => {
-    const fetchData = () => {
+    const fetchProductCategories = () => {
       http.get('shop/product-categories/type')
         .then((resolve) => {
-          console.log('Product Categories Type:', resolve)
           const categories = [ALL_CATEGORY_FILTER, ...resolve.data.data];
           setCategory(categories[0]);
           setListCategories(categories);
@@ -384,19 +392,60 @@ const ProductList = () => {
         })
     }
 
-    fetchData()
+    fetchProductCategories()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
+  // --------------------------     Fetch Firebase Image     --------------------------
+  const fetchImages = (imagePath, callback) => {
+    const fetchedImages = [];
+    const imageRef = ref(storage, imagePath);
+    listAll(imageRef)
+      .then((response) => {
+        const promises = response.items.map((item) =>
+          getDownloadURL(item)
+            .then((url) => {
+              fetchedImages.push(url);
+            })
+            .catch((error) => {
+              console.log(error);
+            })
+        );
+        Promise.all(promises).then(() => {
+          callback(fetchedImages);
+        });
+      })
+      .catch((error) => {
+        console.log(error);
+        callback([]);
+      });
+  };
+
   // --------------------------     Fetch Filter API     --------------------------
   useEffect(() => {
-    const fetchData = () => {
+    const fetchProducts = () => {
       if (filter === ALL_FILTER) {
+        if (loading === false) {
+          setLoading(true)
+        }
+
         http.get(`shop/products/paginate?page_number=${currentPage}&num_of_page=${pageSize}`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListProducts(resolve.data.data)
+            const productData = resolve.data.data
             setTotalProducts(resolve.data.total_products)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListProducts(productsWithImages);
+              setLoading(false);
+            });
           })
           .catch((reject) => {
             console.log(reject)
@@ -404,9 +453,20 @@ const ProductList = () => {
       } else if (filter === BEST_SELLING_FILTER) {
         http.get(`shop/products/best-selling?page_number=${currentPage}&num_of_page=${pageSize}`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListProducts(resolve.data.data)
+            const productData = resolve.data.data
             setTotalProducts(resolve.data.total_products)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListProducts(productsWithImages);
+            });
 
             toast.success('Successfully filtered by best-selling', {
               position: "top-right",
@@ -425,11 +485,54 @@ const ProductList = () => {
       } else if (filter === HIGHEST_RATING_FILTER) {
         http.get(`shop/products/highest-rating?page_number=${currentPage}&num_of_page=${pageSize}`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListProducts(resolve.data.data)
+            const productData = resolve.data.data
             setTotalProducts(resolve.data.total_products)
 
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListProducts(productsWithImages);
+            });
+
             toast.success('Successfully filtered by highest rating', {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: 0,
+              theme: "colored",
+            })
+          })
+          .catch((reject) => {
+            console.log(reject)
+          })
+      } else if (filter === SOLD_OUT) {
+        http.get(`shop/products/sold-out?page_number=${currentPage}&num_of_page=${pageSize}`)
+          .then((resolve) => {
+            const productData = resolve.data.data
+            setTotalProducts(resolve.data.total_products)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListProducts(productsWithImages);
+            });
+
+            toast.success('Successfully filtered by sold-out', {
               position: "top-right",
               autoClose: 3000,
               hideProgressBar: false,
@@ -446,9 +549,20 @@ const ProductList = () => {
       } else if (filter === PRICE_ASCENDING_FILTER) {
         http.get(`shop/products/sort?page_number=${currentPage}&num_of_page=${pageSize}`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListProducts(resolve.data.data)
+            const productData = resolve.data.data
             setTotalProducts(resolve.data.pagination.total)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListProducts(productsWithImages);
+            });
 
             toast.success('Successfully filtered by ascending price', {
               position: "top-right",
@@ -467,9 +581,20 @@ const ProductList = () => {
       } else if (filter === PRICE_DESCENDING_FILTER) {
         http.get(`shop/products/sort?page_number=${currentPage}&num_of_page=${pageSize}&order=desc`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListProducts(resolve.data.data)
+            const productData = resolve.data.data
             setTotalProducts(resolve.data.pagination.total)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListProducts(productsWithImages);
+            });
 
             toast.success('Successfully filtered by descending price', {
               position: "top-right",
@@ -488,9 +613,20 @@ const ProductList = () => {
       } else {
         http.get(`shop/products/rating?page_number=${currentPage}&num_of_page=${pageSize}&rating=${rating}`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListProducts(resolve.data.data)
+            const productData = resolve.data.data
             setTotalProducts(resolve.data.pagination.total)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListProducts(productsWithImages);
+            });
 
             toast.success(`Successfully filtered by ${rating} star`, {
               position: "top-right",
@@ -509,19 +645,35 @@ const ProductList = () => {
       }
     }
 
-    fetchData()
+    fetchProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, pageSize, filter])
 
   // --------------------------     Fetch Deleted Products API     --------------------------
   useEffect(() => {
-    const fetchData = () => {
+    const fetchDeletedProducts = () => {
       if (filterDeleted === ALL_FILTER) {
+        if (loading === false) {
+          setLoading(true)
+        }
+
         http.get('shop/products/deleted')
           .then((resolve) => {
-            console.log('Deleted Products:', resolve)
-            setListDeletedProducts(resolve.data.data)
+            const productDeletedData = resolve.data.data
             setTotalDeletedProducts(resolve.data.pagination.total)
+
+            const productsDeletedWithImagesPromises = productDeletedData.map((productDeleted) => {
+              return new Promise((resolve) => {
+                fetchImages(productDeleted.image, (fetchedImages) => {
+                  resolve({ ...productDeleted, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsDeletedWithImagesPromises).then((productsDeletedWithImages) => {
+              setListDeletedProducts(productsDeletedWithImages);
+              setLoading(false);
+            });
           })
           .catch((reject) => {
             console.log(reject);
@@ -529,9 +681,20 @@ const ProductList = () => {
       } else if (filterDeleted === BEST_SELLING_FILTER) {
         http.get(`shop/products/best-selling?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListDeletedProducts(resolve.data.data)
+            const productDeletedData = resolve.data.data
             setTotalDeletedProducts(resolve.data.total_products)
+
+            const productsDeletedWithImagesPromises = productDeletedData.map((productDeleted) => {
+              return new Promise((resolve) => {
+                fetchImages(productDeleted.image, (fetchedImages) => {
+                  resolve({ ...productDeleted, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsDeletedWithImagesPromises).then((productsDeletedWithImages) => {
+              setListDeletedProducts(productsDeletedWithImages);
+            });
 
             toast.success('Successfully filtered by best-selling', {
               position: "top-right",
@@ -550,11 +713,54 @@ const ProductList = () => {
       } else if (filterDeleted === HIGHEST_RATING_FILTER) {
         http.get(`shop/products/highest-rating?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListDeletedProducts(resolve.data.data)
+            const productDeletedData = resolve.data.data
             setTotalDeletedProducts(resolve.data.total_products)
 
+            const productsDeletedWithImagesPromises = productDeletedData.map((productDeleted) => {
+              return new Promise((resolve) => {
+                fetchImages(productDeleted.image, (fetchedImages) => {
+                  resolve({ ...productDeleted, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsDeletedWithImagesPromises).then((productsDeletedWithImages) => {
+              setListDeletedProducts(productsDeletedWithImages);
+            });
+
             toast.success('Successfully filtered by highest rating', {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: 0,
+              theme: "colored",
+            })
+          })
+          .catch((reject) => {
+            console.log(reject)
+          })
+      } else if (filterDeleted === SOLD_OUT) {
+        http.get(`shop/products/sold-out?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)
+          .then((resolve) => {
+            const productData = resolve.data.data
+            setTotalDeletedProducts(resolve.data.total_products)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListDeletedProducts(productsWithImages);
+            });
+
+            toast.success('Successfully filtered by sold-out', {
               position: "top-right",
               autoClose: 3000,
               hideProgressBar: false,
@@ -571,9 +777,20 @@ const ProductList = () => {
       } else if (filterDeleted === PRICE_ASCENDING_FILTER) {
         http.get(`shop/products/sort?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListDeletedProducts(resolve.data.data)
+            const productDeletedData = resolve.data.data
             setTotalDeletedProducts(resolve.data.pagination.total)
+
+            const productsDeletedWithImagesPromises = productDeletedData.map((productDeleted) => {
+              return new Promise((resolve) => {
+                fetchImages(productDeleted.image, (fetchedImages) => {
+                  resolve({ ...productDeleted, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsDeletedWithImagesPromises).then((productsDeletedWithImages) => {
+              setListDeletedProducts(productsDeletedWithImages);
+            });
 
             toast.success('Successfully filtered by ascending price', {
               position: "top-right",
@@ -592,9 +809,20 @@ const ProductList = () => {
       } else if (filterDeleted === PRICE_DESCENDING_FILTER) {
         http.get(`shop/products/sort?page_number=${currentPage}&num_of_page=${pageSize}&order=desc&deleted=true`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListDeletedProducts(resolve.data.data)
+            const productDeletedData = resolve.data.data
             setTotalDeletedProducts(resolve.data.pagination.total)
+
+            const productsDeletedWithImagesPromises = productDeletedData.map((productDeleted) => {
+              return new Promise((resolve) => {
+                fetchImages(productDeleted.image, (fetchedImages) => {
+                  resolve({ ...productDeleted, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsDeletedWithImagesPromises).then((productsDeletedWithImages) => {
+              setListDeletedProducts(productsDeletedWithImages);
+            });
 
             toast.success('Successfully filtered by descending price', {
               position: "top-right",
@@ -613,9 +841,20 @@ const ProductList = () => {
       } else {
         http.get(`shop/products/rating?page_number=${currentPage}&num_of_page=${pageSize}&rating=${ratingDeleted}&deleted=true`)
           .then((resolve) => {
-            console.log('List Products:', resolve)
-            setListDeletedProducts(resolve.data.data)
+            const productDeletedData = resolve.data.data
             setTotalDeletedProducts(resolve.data.pagination.total)
+
+            const productsDeletedWithImagesPromises = productDeletedData.map((productDeleted) => {
+              return new Promise((resolve) => {
+                fetchImages(productDeleted.image, (fetchedImages) => {
+                  resolve({ ...productDeleted, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsDeletedWithImagesPromises).then((productsDeletedWithImages) => {
+              setListDeletedProducts(productsDeletedWithImages);
+            });
 
             toast.success(`Successfully filtered by ${rating} star`, {
               position: "top-right",
@@ -634,9 +873,17 @@ const ProductList = () => {
       }
     }
 
-    fetchData()
+    fetchDeletedProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPageDeleted, pageSizeDeleted, filterDeleted])
+
+  if (loading) {
+    return (
+      <div className='h-full'>
+        <BeatLoader className='relative top-1/2 transform -translate-y-1/2' color="#2463eb" size={36} />
+      </div>
+    )
+  }
 
   return (
     <div className='flex flex-col gap-4'>
@@ -789,16 +1036,28 @@ const ProductList = () => {
               align='left'
               title='UID'
               key='index'
-              render={(text, record, index) => (
-                <span className='font-semibold'>#{currentPage * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>
-              )}
+              render={(text, record, index) => <span className='font-semibold'>#{currentPage * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>}
             />
             <Column
               align='left'
               title='Product Name'
               key='name'
               dataIndex='name'
-              render={(text, record) => <span className='font-semibold'>{text}</span>}
+              render={(text, record, index) => {
+                return (
+                  <div className='flex flex-row items-center gap-3'>
+                    <LazyLoadImage 
+                      key={index} 
+                      src={record.image_url} 
+                      alt={`Product ${index}`} 
+                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1' 
+                      effect='blur'
+                      placeholderSrc={loading}
+                    />
+                    <span className='font-semibold'>{text}</span>
+                  </div>
+                )
+              }}
             />
             <Column
               align='left'
@@ -838,6 +1097,7 @@ const ProductList = () => {
               title='Rating'
               key='rating'
               dataIndex='rating'
+              width={110}
               render={(text, record) => {
                 const roundedRating = parseFloat(text).toFixed(1);
 
@@ -984,7 +1244,21 @@ const ProductList = () => {
               title='Product Name'
               key='name'
               dataIndex='name'
-              render={(text, record) => <span className='font-semibold'>{text}</span>}
+              render={(text, record, index) => {
+                return (
+                  <div className='flex flex-row items-center gap-3'>
+                    <LazyLoadImage 
+                      key={index} 
+                      src={record.image_url} 
+                      alt={`Product Deleted ${index}`} 
+                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1' 
+                      effect='blur'
+                      placeholderSrc={loading}
+                    />
+                    <span className='font-semibold'>{text}</span>
+                  </div>
+                )
+              }}
             />
             <Column
               align='left'

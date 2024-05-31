@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { LazyLoadImage } from 'react-lazy-load-image-component'
-import avatar1 from '../../assets/images/avatar1.jpg'
-import avatar2 from '../../assets/images/avatar2.jpg'
+import loading from '../../assets/images/loading.png'
 import './CustomerReview.scss'
 import TextEditor from "../TextEditor";
 import { Flex, Rate, Tooltip } from 'antd'
@@ -11,12 +10,11 @@ import { MdOutlineReply, MdReport } from 'react-icons/md'
 import { FaEdit } from 'react-icons/fa'
 import { AiFillLike } from "react-icons/ai";
 import { IoCloseSharp } from 'react-icons/io5'
+import { format } from 'date-fns'
+import AuthUser from '../../utils/AuthUser'
 
-const CustomerReview = ({
-	toggleReportModal,
-	comment = 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis quo nostrum dolore fugiat ducimus labore debitis unde autem recusandae? Eius harum tempora quis minima, adipisci natus quod magni omnis quas. Lorem ipsum dolor sit amet consectetur adipisicing elit. Omnis quo nostrum dolore fugiat ducimus labore debitis unde autem recusandae? Eius harum tempora quis minima, adipisci natus quod magni omnis quas. '
-}) => {
-	const [value, setValue] = useState(4);
+const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => { 
+  const { username, avatar } = AuthUser()
 
 	const REPLY_WRAPPER_OPEN = "open"
 	const REPLY_WRAPPER_CLOSING = "closing"
@@ -31,10 +29,12 @@ const CustomerReview = ({
 	const [isOnModePreviewEdit, setOnModePreviewEdit] = useState(false)
 	const [isOpenListReplies, setOpenListReplies] = useState(false)
 
-	const [content, setContent] = useState(() => comment);
+	const [content, setContent] = useState();
 	const [contentError, setContentError] = useState(false);
 	const [reply, setReply] = useState('')
 	const [replyError, setRelpyError] = useState(false);
+
+  const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 
 	// --------------------------     Handle Comment     --------------------------
 	const editCommentModule = {
@@ -141,6 +141,7 @@ const CustomerReview = ({
 		setReply(value)
 		console.log('Reply:', value)
 	}
+  
 
 	return (
 		// Comment Container
@@ -152,16 +153,16 @@ const CustomerReview = ({
 					{/* Left Top */}
 					<div className='left-top'>
 						<LazyLoadImage
-							key={avatar2}
-							src={avatar2}
-							alt={`${avatar2}`}
-							effect="opacity"
-							placeholderSrc={avatar2}
+							key={ratingIndex}
+							src={rating.avatar_url}
+							alt={`Avatar ${ratingIndex}`}
+							effect="blur"
+							placeholderSrc={loading}
 						/>
 						<p
 							onClick={handleClickUsername}
 							className='text-xl font-semibold mt-1 mb-2 transition duration-200 hover:cursor-pointer hover:text-blue-500'>
-							Toronto
+							{rating.customer_username}
 						</p>
 					</div>
 					{/* Left Bottom */}
@@ -170,13 +171,13 @@ const CustomerReview = ({
 							<Tooltip title="Joined Date">
 								<FaUser />
 							</Tooltip>
-							<p>May 26, 2024</p>
+							<p>{format(new Date(rating.account_creation_date), 'dd-MM-yyyy')}</p>
 						</div>
 						<div className='flex flex-row justify-start items-center gap-3'>
 							<Tooltip title="Total Comment">
 								<BiSolidMessageRoundedDetail />
 							</Tooltip>
-							<p>4</p>
+							<p>{rating.customer_rating_count}</p>
 						</div>
 						<div className='flex flex-row justify-start items-center gap-3'>
 							<Tooltip title="Total Like">
@@ -194,7 +195,7 @@ const CustomerReview = ({
 					<div className='flex flex-row items-center justify-between w-full'>
 						<div className='font-normal text-[18] text-neutral-500'>
 							<Tooltip title="Comment Date">
-								<p>May 26, 2024</p>
+								<p>{format(new Date(rating.rating_date), 'EEEE dd, yyyy')}</p>
 							</Tooltip>
 						</div>
 						<div>
@@ -246,10 +247,10 @@ const CustomerReview = ({
 							<>
 								<div className='mb-3'>
 									<Flex gap="middle" vertical>
-										<Rate disabled defaultValue={value} />
+										<Rate disabled tooltips={desc} defaultValue={rating.rating_score} />
 									</Flex>
 								</div>
-								<div dangerouslySetInnerHTML={{ __html: comment }} />
+								<div dangerouslySetInnerHTML={{ __html: rating.description }} />
 							</>
 						)}
 					</div>
@@ -275,13 +276,13 @@ const CustomerReview = ({
 					<div className="flex flex-col justify-start items-center py-4 pl-5 min-w-[12%] border-l-8 border-neutral-200 rounded-md">
 						<div className='left-top'>
 							<LazyLoadImage
-								key={avatar1}
-								src={avatar1}
-								alt={`${avatar1}`}
+								key={avatar}
+								src={avatar}
+								alt={`${avatar}`}
 								effect="opacity"
-								placeholderSrc={avatar1}
+								placeholderSrc={loading}
 							/>
-							<p>Shiba</p>
+							<p className='text-xl font-semibold mt-1 mb-2 transition duration-200 hover:cursor-pointer hover:text-blue-500'>{username}</p>
 						</div>
 					</div>
 					{/* Vertical Divider */}

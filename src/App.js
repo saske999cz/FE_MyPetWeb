@@ -57,7 +57,7 @@ function App() {
               element={<AuthRoute roles={[ROLE_SHOP]}><ProductList /></AuthRoute>}
             />
             <Route
-              path="product-view"
+              path="product-view/:id"
               element={<AuthRoute roles={[ROLE_SHOP]}><ProductDetail /></AuthRoute>}
             />
             <Route
