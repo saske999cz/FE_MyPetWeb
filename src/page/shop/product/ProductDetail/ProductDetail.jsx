@@ -104,9 +104,9 @@ const ProductDetail = () => {
   useEffect(() => {
     const fetchRatings = async () => {
       try {
-        const response = await http.get(`shop/ratings/product/${id}&page_number=${currentPage}&num_of_page=${pageSize}`);
+        const response = await http.get(`shop/ratings/product/${id}?page_number=${currentPage}&num_of_page=${pageSize}`);
         const ratingData = response.data.data;
-  
+
         // Fetch images for each rating
         const ratingsWithImages = await Promise.all(
           ratingData.map(async (rating) => {
@@ -123,7 +123,7 @@ const ProductDetail = () => {
             };
           })
         );
-  
+
         setListRatings(ratingsWithImages);
         setTotalRatings(response.data.total_ratings);
       } catch (error) {
@@ -328,7 +328,7 @@ const ProductDetail = () => {
           <CustomerReview rating={rating} ratingIndex={index+1} />
         )
       })}
-      <div className='flex flex-row items-center mt-6'>
+      <div className='flex flex-row items-center justify-end mb-6'>
         <Pagination
           current={currentPage}
           defaultCurrent={DEFAULT_CURRENT_PAGE_NUMBER}

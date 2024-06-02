@@ -35,18 +35,42 @@
 }
 
 .right-bottom-right {
-    &:hover {
-        transition: 0.2s;
-        cursor: pointer;
+  transition: color 0.3s, text-decoration 0.3s;
 
-        .like-icon {
-            color: blue
-        }
+  .like-icon, .like-text {
+      transition: color 0.3s, text-decoration 0.3s;
+  }
 
-        .like-text {
-            text-decoration: underline;
-        }
-    }
+  &:hover {
+      cursor: pointer;
+
+      .like-icon {
+          color: blue; // Icon sẽ chuyển màu xanh khi hover, nếu không muốn icon chuyển màu, bỏ dòng này.
+      }
+
+      .like-text {
+          text-decoration: underline;
+          color: blue; // Text sẽ chuyển màu xanh và gạch chân khi hover.
+      }
+  }
+}
+
+.liked-icon {
+  color: blue;
+}
+
+.liked-text {
+  color: blue;
+  text-decoration: none; // Bỏ gạch chân khi đã liked.
+}
+
+.not-liked-icon {
+  color: black;
+}
+
+.not-liked-text {
+  color: black;
+  text-decoration: none;
 }
 
 .reply-wrapper {
@@ -62,5 +86,10 @@
 .right-editor .ql-container {
     border-bottom-left-radius: 8px;
     border-bottom-right-radius: 8px;
+    background: white;
+}
+
+.icon-reply {
+  transform: scaleX(-1);
 }
 

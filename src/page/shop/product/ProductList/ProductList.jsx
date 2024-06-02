@@ -121,6 +121,7 @@ const ProductList = () => {
   const ALL_FILTER = 'All'
   const BEST_SELLING_FILTER = 'Best Selling'
   const HIGHEST_RATING_FILTER = 'Highest Rating'
+  const LOWEST_RATING_FILTER = 'Lowest Rating'
   const PRICE_ASCENDING_FILTER = 'Price Acsending'
   const PRICE_DESCENDING_FILTER = 'Price Descending'
   const SOLD_OUT = 'Sold Out'
@@ -137,6 +138,7 @@ const ProductList = () => {
     ALL_FILTER,
     BEST_SELLING_FILTER,
     HIGHEST_RATING_FILTER,
+    LOWEST_RATING_FILTER,
     PRICE_ASCENDING_FILTER,
     PRICE_DESCENDING_FILTER,
     SOLD_OUT,
@@ -514,6 +516,38 @@ const ProductList = () => {
           .catch((reject) => {
             console.log(reject)
           })
+      } else if (filter === LOWEST_RATING_FILTER) {
+        http.get(`shop/products/lowest-rating?page_number=${currentPage}&num_of_page=${pageSize}`)
+          .then((resolve) => {
+            const productData = resolve.data.data
+            setTotalProducts(resolve.data.total_products)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListProducts(productsWithImages);
+            });
+
+            toast.success('Successfully filtered by lowest rating', {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: 0,
+              theme: "colored",
+            })
+          })
+          .catch((reject) => {
+            console.log(reject)
+          })
       } else if (filter === SOLD_OUT) {
         http.get(`shop/products/sold-out?page_number=${currentPage}&num_of_page=${pageSize}`)
           .then((resolve) => {
@@ -729,6 +763,38 @@ const ProductList = () => {
             });
 
             toast.success('Successfully filtered by highest rating', {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: 0,
+              theme: "colored",
+            })
+          })
+          .catch((reject) => {
+            console.log(reject)
+          })
+      } else if (filterDeleted === LOWEST_RATING_FILTER) {
+        http.get(`shop/products/lowest-rating?page_number=${currentPage}&num_of_page=${pageSize}`)
+          .then((resolve) => {
+            const productData = resolve.data.data
+            setTotalDeletedProducts(resolve.data.total_products)
+
+            const productsWithImagesPromises = productData.map((product) => {
+              return new Promise((resolve) => {
+                fetchImages(product.image, (fetchedImages) => {
+                  resolve({ ...product, image_url: fetchedImages[0] || '' });
+                });
+              });
+            });
+
+            Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+              setListDeletedProducts(productsWithImages);
+            });
+
+            toast.success('Successfully filtered by lowest rating', {
               position: "top-right",
               autoClose: 3000,
               hideProgressBar: false,
@@ -1050,7 +1116,7 @@ const ProductList = () => {
                       key={index} 
                       src={record.image_url} 
                       alt={`Product ${index}`} 
-                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1' 
+                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1 object-cover' 
                       effect='blur'
                       placeholderSrc={loading}
                     />
@@ -1251,7 +1317,7 @@ const ProductList = () => {
                       key={index} 
                       src={record.image_url} 
                       alt={`Product Deleted ${index}`} 
-                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1' 
+                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1 object-cover' 
                       effect='blur'
                       placeholderSrc={loading}
                     />
