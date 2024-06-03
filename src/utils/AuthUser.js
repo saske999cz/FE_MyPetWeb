@@ -4,8 +4,11 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { removeAvatar } from "../redux/actions";
 import { toast } from "react-toastify";
+import { useAuth } from "./AuthContext";
 
 export default function AuthUser() {
+  const { accessToken, updateToken, clearToken } = useAuth();
+
   const hasAccessToken = () => {
     const accessTokenString = localStorage.getItem('access_token');
     return !!accessTokenString
@@ -15,12 +18,6 @@ export default function AuthUser() {
     const usernameString = localStorage.getItem('username');
     return !!usernameString
   }
-
-  const [accessToken, setAccessToken] = useState(() => {
-    const accessTokenString = localStorage.getItem('access_token');
-    const accessToken = JSON.parse(accessTokenString);
-    return accessToken;
-  });
 
   const [userId, setUserId] = useState(() => {
     const userIdString = localStorage.getItem('user_id');
@@ -56,14 +53,13 @@ export default function AuthUser() {
   const dispatch = useDispatch();
 
   const saveToken = (accessToken, user) => {
-    localStorage.setItem('access_token', JSON.stringify(accessToken))
+    updateToken(accessToken); // Sử dụng updateToken từ context
     localStorage.setItem('user_id', JSON.stringify(user.id))
     localStorage.setItem('username', JSON.stringify(user.username))
     localStorage.setItem('email', JSON.stringify(user.email))
     localStorage.setItem('avatar', JSON.stringify(user.avatar))
     localStorage.setItem('role', JSON.stringify(user.role_name))
 
-    setAccessToken(accessToken)
     setUserId(user.id)
     setUsername(user.username)
     setEmail(user.email)
@@ -72,7 +68,7 @@ export default function AuthUser() {
   }
 
   const logout = () => {
-    localStorage.removeItem('access_token');
+    clearToken(); // Sử dụng clearToken từ context
     localStorage.removeItem('user_id');
     localStorage.removeItem('username');
     localStorage.removeItem('email');
@@ -98,14 +94,58 @@ export default function AuthUser() {
     baseURL: "http://127.0.0.1:8000/api",
     headers: {
       "Content-Type": 'multipart/form-data',
-      "Authorization": `Bearer ${accessToken}`,
+      "Authorization": `Bearer ${accessToken || ''}`, // Sử dụng accessToken từ context
     }
-  })
+  });
 
-  const updateProfile = (username) => {
-    setUsername(username);
-    localStorage.setItem('username', JSON.stringify(username));
-  }
+  http.interceptors.request.use(
+    config => {
+      const token = accessToken; // Sử dụng accessToken từ context
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    error => {
+      return Promise.reject(error);
+    }
+  );
+  
+  http.interceptors.response.use(
+    response => {
+      return response;
+    },
+    async error => {
+      const originalRequest = error.config;
+  
+      if (error.response.status === 401 && error.response.data.new_token && !originalRequest._retry) {
+        originalRequest._retry = true;
+        try {
+          const newToken = error.response.data.new_token;
+          updateToken(newToken); // Sử dụng updateToken từ context
+          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          return http(originalRequest);
+        } catch (tokenRefreshError) {
+          // Handle refresh token error here
+          clearToken(); // Clear the token if refresh fails
+          navigate('/login'); // Redirect to login
+          toast.error('Session expired. Please log in again.', {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: undefined,
+            theme: "colored",
+          });
+          return Promise.reject(tokenRefreshError);
+        }
+      }
+  
+      return Promise.reject(error);
+    }
+  );
 
   return {
     http,
@@ -119,7 +159,6 @@ export default function AuthUser() {
     hasUsername,
     saveToken,
     setUsername,
-    updateProfile,
     logout,
   }
 }

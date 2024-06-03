@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { LazyLoadImage } from 'react-lazy-load-image-component'
 import loading from '../../assets/images/loading.png'
 import './CustomerReview.scss'
@@ -17,9 +17,12 @@ import Reply from '../Reply/Reply';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
+import { useAuth } from '../../utils/AuthContext';
 
 const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
   const { username, avatar, http } = AuthUser()
+  const { accessToken } = useAuth();
+
   const navigate = useNavigate()
 
   const REPLY_WRAPPER_OPEN = "open"
@@ -31,6 +34,8 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
   const PREVIEW_OPEN = "open"
   const PREVIEW_CLOSING = "closing"
   const PREVIEW_CLOSED = "closed"
+
+  const [processing, setProcessing] = useState(false);
 
   const [likeCount, setLikeCount] = useState(rating.likes.total_likes)
   const [likeStatus, setLikeStatus] = useState(rating.likes.shop_liked)
@@ -46,48 +51,56 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
 
   // --------------------------     Handle Reply     --------------------------
   const handleLikeRating = () => {
-    if (!likeStatus) {
-      http.post(`shop/rating-products/${rating.rating_id}/like`)
-        .then((resolve) => {
-          const total_likes = resolve.data.total_likes ?? 0
-          setLikeCount(total_likes)
-          setLikeStatus(true)
+    if (!processing) {
+      setProcessing(true);
 
-          toast.success(`Liked rating of ${rating.customer_username}`, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: 0,
-            theme: "colored",
-          })
-        })
-        .catch((error) => {
-          console.log(error)
-        })
-    } else {
-      http.post(`shop/rating-products/${rating.rating_id}/unlike`)
-        .then((resolve) => {
-          const total_likes = resolve.data.total_likes ?? 0
-          setLikeCount(total_likes)
-          setLikeStatus(false)
+      if (!likeStatus) {
+        http.post(`shop/rating-products/${rating.rating_id}/like`)
+          .then((resolve) => {
+            const total_likes = resolve.data.total_likes ?? 0
+            setLikeCount(total_likes)
+            setLikeStatus(true)
 
-          toast.success(`Unliked rating of ${rating.customer_username}`, {
-            position: "top-right",
-            autoClose: 3000,
-            hideProgressBar: false,
-            closeOnClick: true,
-            pauseOnHover: true,
-            draggable: true,
-            progress: 0,
-            theme: "colored",
+            setProcessing(false);
+            
+            toast.success(`Liked rating of ${rating.customer_username}`, {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: 0,
+              theme: "colored",
+            })
           })
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+          .catch((error) => {
+            console.log(error)
+          })
+      } else {
+        http.post(`shop/rating-products/${rating.rating_id}/unlike`)
+          .then((resolve) => {
+            const total_likes = resolve.data.total_likes ?? 0
+            setLikeCount(total_likes)
+            setLikeStatus(false)
+
+            setProcessing(false);
+
+            toast.success(`Unliked rating of ${rating.customer_username}`, {
+              position: "top-right",
+              autoClose: 3000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: 0,
+              theme: "colored",
+            })
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+      }
     }
   }
 
@@ -136,29 +149,34 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
   }
 
   const handlePostReply = () => {
-    if (!reply.trim()) {
-      setRelpyError(true)
-    } else {
-      setRelpyError(false)
+    if (!processing) {
+      setProcessing(true);
+      if (!reply.trim()) {
+        setRelpyError(true)
+      } else {
+        setRelpyError(false)
 
-      const formData = new FormData()
-      formData.append('reply', reply);
+        const formData = new FormData()
+        formData.append('reply', reply);
 
-      http.post(`shop/rating-products/${rating.rating_id}/reply`, formData)
-        .then((resolve) => {
-          if (resolve.status === 200) {
-            Swal.fire({
-              title: 'Done!',
-              text: 'Successfully posted reply',
-              icon: 'success',
-            }).then(() => {
-              navigate(0)
-            })
-          }
-        })
-        .catch((error) => {
-          console.log(error)
-        })
+        http.post(`shop/rating-products/${rating.rating_id}/reply`, formData)
+          .then((resolve) => {
+            if (resolve.status === 200) {
+              setProcessing(false);
+
+              Swal.fire({
+                title: 'Done!',
+                text: 'Successfully posted reply',
+                icon: 'success',
+              }).then(() => {
+                navigate(0)
+              })
+            }
+          })
+          .catch((error) => {
+            console.log(error)
+          })
+      }
     }
   }
 
@@ -181,6 +199,12 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
     setReply(value)
     console.log('Reply:', value)
   }
+
+  useEffect(() => {
+    // Effect to monitor changes in accessToken
+    // When accessToken changes, reset processing state
+    setProcessing(false);
+  }, [accessToken]);
 
   return (
     // Comment Container

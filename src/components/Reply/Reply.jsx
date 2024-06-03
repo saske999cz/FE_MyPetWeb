@@ -1,5 +1,5 @@
 import { Tooltip } from 'antd'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import AuthUser from '../../utils/AuthUser'
 import TextEditor from '../TextEditor';
 import { FaEdit } from 'react-icons/fa';
@@ -7,14 +7,18 @@ import { FaEye, FaPencil, FaTrash } from 'react-icons/fa6';
 import './Reply.scss'
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../utils/AuthContext';
 
 const Reply = ({ ratingId, replyDate, replyContent }) => {
   const { avatar, username, http } = AuthUser();
+  const { accessToken } = useAuth()
   const navigate = useNavigate()
 
   const PREVIEW_OPEN = "open"
   const PREVIEW_CLOSING = "closing"
   const PREVIEW_CLOSED = "closed"
+
+  const [processing, setProcessing] = useState(false);
 
   // --------------------------     Handle Reply     --------------------------
   const [reply, setReply] = useState(replyContent)
@@ -50,39 +54,6 @@ const Reply = ({ ratingId, replyDate, replyContent }) => {
     }
   }
 
-  const handleDeleteReply = () => {
-    Swal.fire({
-      title: 'This action cannot be undone',
-      text: 'Want to delete this reply?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'OK',
-      confirmButtonColor: '#d33',
-      cancelButtonText: 'Cancel',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        http.delete(`shop/rating-products/${ratingId}/reply`)
-          .then((resolve) => {
-            if (resolve.status === 404) {
-              Swal.fire({
-                icon: "error",
-                title: "Oops...",
-                text: resolve.data.message,
-              })
-            } else if (resolve.status === 200) {
-              Swal.fire({
-                icon: "success",
-                title: 'Done',
-                text: resolve.data.message,
-              }).then(() => {
-                navigate(0)
-              })
-            }
-          })
-      }
-    })
-  }
-
   // -----------------------     Preview Reply Action     -----------------------
   const handlePreviewEditReply = () => {
     if (previewEditReplyState === PREVIEW_OPEN) {
@@ -96,38 +67,92 @@ const Reply = ({ ratingId, replyDate, replyContent }) => {
   }
 
   const handleConfirmReply = () => {
-    if (!reply.trim()) {
-      setReplyError(true)
-    } else {
-      setReplyError(false)
+    if (!processing) {
+      setProcessing(true);
 
-      const params = new URLSearchParams()
-      params.append('reply', reply)
+      if (!reply.trim()) {
+        setReplyError(true)
+      } else {
+        setReplyError(false)
 
-      http.put(`shop/rating-products/${ratingId}/reply`, params, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
-      }).then((resolve) => {
-        if (resolve.status === 200) {
-          Swal.fire({
-            title: 'Done!',
-            text: 'Successfully updated reply',
-            icon: 'success',
-          }).then(() => {
-            navigate(0)
+        const params = new URLSearchParams()
+        params.append('reply', reply)
+
+        http.put(`shop/rating-products/${ratingId}/reply`, params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        }).then((resolve) => {
+          setProcessing(false);
+
+          if (resolve.status === 200) {
+              Swal.fire({
+                title: 'Done!',
+                text: 'Successfully updated reply',
+                icon: 'success',
+              }).then(() => {
+                navigate(0)
+              })
+            }
+        })
+          .catch((error) => {
+            console.log(error)
           })
+      }
+    }
+  }
+
+  const handleDeleteReply = () => {
+    if (!processing) {
+      setProcessing(true);
+
+      Swal.fire({
+        title: 'This action cannot be undone',
+        text: 'Want to delete this reply?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#d33',
+        cancelButtonText: 'Cancel',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          http.delete(`shop/rating-products/${ratingId}/reply`)
+            .then((resolve) => {
+              setProcessing(false);
+
+              if (resolve.status === 404) {
+                Swal.fire({
+                  icon: "error",
+                  title: "Oops...",
+                  text: resolve.data.message,
+                })
+              } else if (resolve.status === 200) {
+                Swal.fire({
+                  icon: "success",
+                  title: 'Done',
+                  text: resolve.data.message,
+                }).then(() => {
+                  navigate(0)
+                })
+              }
+            })
+            .catch((error) => {
+              console.log(error)
+            })
         }
       })
-        .catch((error) => {
-          console.log(error)
-        })
     }
   }
 
   const onChangeContent = (value) => {
     setReply(value);
   };
+
+  useEffect(() => {
+    // Effect to monitor changes in accessToken
+    // When accessToken changes, reset processing state
+    setProcessing(false);
+  }, [accessToken]);
 
   return (
     // Reply Wrapper

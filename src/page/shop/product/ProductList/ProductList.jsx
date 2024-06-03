@@ -22,7 +22,8 @@ import { BeatLoader } from 'react-spinners';
 import { storage } from '../../../../utils/firebase';
 import { getDownloadURL, listAll, ref } from 'firebase/storage';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import loading from '../../../../assets/images/loading.png'
+import loadingImg from '../../../../assets/images/loading.png'
+import { useAuth } from '../../../../utils/AuthContext';
 
 function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', isLastCard = false }) {
   return (
@@ -97,6 +98,7 @@ function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', is
 
 const ProductList = () => {
   const { http } = AuthUser()
+  const { accessToken } = useAuth()
   const navigate = useNavigate()
   const TOOLTIP_MESSAGE = "Need to combine with other * to search"
 
@@ -396,7 +398,7 @@ const ProductList = () => {
 
     fetchProductCategories()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [accessToken])
 
   // --------------------------     Fetch Firebase Image     --------------------------
   const fetchImages = (imagePath, callback) => {
@@ -681,7 +683,7 @@ const ProductList = () => {
 
     fetchProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize, filter])
+  }, [currentPage, pageSize, filter, accessToken])
 
   // --------------------------     Fetch Deleted Products API     --------------------------
   useEffect(() => {
@@ -941,7 +943,7 @@ const ProductList = () => {
 
     fetchDeletedProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPageDeleted, pageSizeDeleted, filterDeleted])
+  }, [currentPageDeleted, pageSizeDeleted, filterDeleted, accessToken])
 
   if (loading) {
     return (
@@ -1118,7 +1120,7 @@ const ProductList = () => {
                       alt={`Product ${index}`} 
                       className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1 object-cover' 
                       effect='blur'
-                      placeholderSrc={loading}
+                      placeholderSrc={loadingImg}
                     />
                     <span className='font-semibold'>{text}</span>
                   </div>
@@ -1319,7 +1321,7 @@ const ProductList = () => {
                       alt={`Product Deleted ${index}`} 
                       className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1 object-cover' 
                       effect='blur'
-                      placeholderSrc={loading}
+                      placeholderSrc={loadingImg}
                     />
                     <span className='font-semibold'>{text}</span>
                   </div>

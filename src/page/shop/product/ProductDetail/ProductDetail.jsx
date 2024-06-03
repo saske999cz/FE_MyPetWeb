@@ -3,18 +3,16 @@ import { Divider, Flex, Pagination, Progress, Rate } from 'antd';
 import { BiSolidCategoryAlt, BiSolidCommentDetail } from "react-icons/bi";
 import { MdOutlineProductionQuantityLimits, MdPublishedWithChanges, MdSell, MdOutlineUpdate } from "react-icons/md";
 import { GrCurrency } from "react-icons/gr";
-import { LazyLoadImage } from 'react-lazy-load-image-component';
 import CustomerReview from '../../../../components/CustomerReview/CustomerReview';
-import avatar1 from '../../../../assets/images/avatar1.jpg'
-import avatar2 from '../../../../assets/images/avatar2.jpg'
 import './ProductDetail.scss';
-import { useLocation, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import AuthUser from '../../../../utils/AuthUser';
 import currency from '../../../../utils/currency';
 import { format } from 'date-fns';
 import { BeatLoader } from 'react-spinners'
 import { getDownloadURL, listAll, ref } from 'firebase/storage';
 import { storage } from '../../../../utils/firebase';
+import { useAuth } from '../../../../utils/AuthContext';
 
 
 const ProductDetail = () => {
@@ -23,7 +21,7 @@ const ProductDetail = () => {
   const [product, setProduct] = useState({});
   const [loading, setLoading] = useState(true);
   const { http } = AuthUser();
-
+  const { accessToken } = useAuth();
   // Fetch list image state
   const [imageList, setImageList] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
@@ -84,6 +82,8 @@ const ProductDetail = () => {
         await Promise.all(promises)
         setImageList(fetchedImages);
         setSelectedImage(fetchedImages[0]);
+        
+        setLoading(false)
       } catch (error) {
         console.log(error)
       }
@@ -92,13 +92,14 @@ const ProductDetail = () => {
     const loadData = async () => {
       setLoading(true)
       const productImage = await fetchProduct()
-      await fetchProductImages(productImage)
-      setLoading(false)
+      if (productImage) {
+        await fetchProductImages(productImage);
+      }
     }
 
     loadData()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [accessToken])
 
   // --------------------------     Fetch Rating API     --------------------------
   useEffect(() => {
@@ -133,7 +134,7 @@ const ProductDetail = () => {
   
     fetchRatings();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, pageSize]);
+  }, [currentPage, pageSize, accessToken]);
 
   // --------------------------     Fetch Rating Detail API     --------------------------
   useEffect(() => {
@@ -154,7 +155,7 @@ const ProductDetail = () => {
 
     fetchRatingDetails()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [accessToken])
 
   if (loading) {
     return (
