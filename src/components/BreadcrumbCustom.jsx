@@ -11,6 +11,11 @@ const routesConfig = {
     title: 'Product List',
     breadcrumb: 'Product List',
   },
+  '/dashboard/product-create': {
+    title: 'Product Create',
+    breadcrumb: 'Product Create',
+    parent: '/dashboard/product-list',
+  },
   '/dashboard/product-view': {
     title: 'Product View',
     breadcrumb: 'Product View',

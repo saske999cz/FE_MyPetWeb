@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { HiOutlineDotsVertical } from "react-icons/hi";
-import { FaClockRotateLeft, FaFilter, FaProductHunt, FaStar } from "react-icons/fa6";
+import { FaClockRotateLeft, FaFilter, FaPlus, FaProductHunt, FaStar } from "react-icons/fa6";
 import { FaBagShopping } from "react-icons/fa6";
 import { Divider, Table, Tooltip } from 'antd';
 import { MdCategory, MdOutlinePets } from "react-icons/md";
@@ -103,6 +103,25 @@ const ProductList = () => {
   const TOOLTIP_MESSAGE = "Need to combine with other * to search"
 
   const [loading, setLoading] = useState(true);
+
+  const handleClickCreateButton = () => {
+    navigate('/dashboard/product-create')
+  }
+
+  // // --------------     PRODUCT BANNER     --------------
+  // const DEFAULT_CURRENT_PAGE_NUMBER = 1;
+  // const DEFAULT_PAGE_SIZE_NUMBER = 10;
+  // const allPageSize = [10, 20, 30];
+
+  // // --------------     RATING BANNER     --------------
+  // const DEFAULT_CURRENT_PAGE_NUMBER = 1;
+  // const DEFAULT_PAGE_SIZE_NUMBER = 10;
+  // const allPageSize = [10, 20, 30];
+
+  // // --------------     ORDER BANNER     --------------
+  // const DEFAULT_CURRENT_PAGE_NUMBER = 1;
+  // const DEFAULT_PAGE_SIZE_NUMBER = 10;
+  // const allPageSize = [10, 20, 30];
 
   // --------------     PAGINATION STATE     --------------
   const DEFAULT_CURRENT_PAGE_NUMBER = 1;
@@ -263,16 +282,7 @@ const ProductList = () => {
   }
 
   const handleUpdateProduct = (record) => {
-    toast.error('Please input all fields', {
-      position: "top-right",
-      autoClose: 3000,
-      hideProgressBar: false,
-      closeOnClick: true,
-      pauseOnHover: true,
-      draggable: true,
-      progress: undefined,
-      theme: "colored",
-    })
+    navigate(`/dashboard/product-update/${record.id}`)
   }
 
   const handleDeleteProduct = (record) => {
@@ -976,7 +986,7 @@ const ProductList = () => {
               <strong className="text-2xl font-bold">605</strong>
             </div>
             <div className="flex flex-col items-start">
-              <span className="text-xl font-semibold">Total Categories</span>
+              <span className="text-xl font-semibold">Total Ratings</span>
               <span className="text-md">+95% Last Month</span>
             </div>
           </div>
@@ -990,7 +1000,7 @@ const ProductList = () => {
               <strong className="text-2xl font-bold">428</strong>
             </div>
             <div className="flex flex-col items-start">
-              <span className="text-xl font-semibold">Total Ratings</span>
+              <span className="text-xl font-semibold">Total Orders</span>
               <span className="text-md">+95% Last Month</span>
             </div>
           </div>
@@ -1000,6 +1010,15 @@ const ProductList = () => {
         </BoxWrapper>
       </div>
       <div className='flex flex-col items-start justify-between bg-white p-6 rounded-md'>
+        <div className='flex flex-row items-start justify-end w-full mb-6'>
+          <button 
+            onClick={handleClickCreateButton} 
+            className='flex flex-row items-center gap-2 px-4 py-2 bg-blue-600 rounded-md hover:opacity-80 transition duration-300'
+          >
+            <FaPlus size={18} style={{color: 'white'}} />
+            <p className='text text-[16] text-white'>Create</p>
+          </button>
+        </div>
         <Divider orientation='left'>
           <div className='flex flex-row gap-2 items-center'>
             <FaProductHunt />

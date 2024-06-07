@@ -1,26 +1,23 @@
 import { Button, Form, Input, InputNumber, Upload } from 'antd'
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect, useState } from 'react'
-import { FaCloudUploadAlt, FaEdit } from 'react-icons/fa';
+import { FaCloudUploadAlt } from 'react-icons/fa';
 import { InboxOutlined, UploadOutlined } from '@ant-design/icons';
 import Select from 'react-select'
 import AuthUser from '../../../../utils/AuthUser';
 import { useAuth } from '../../../../utils/AuthContext';
 import { toast } from 'react-toastify';
-import { uploadBytes, getDownloadURL, ref, listAll, deleteObject } from 'firebase/storage';
+import { uploadBytes, getDownloadURL, ref } from 'firebase/storage';
 import { storage, firebaseConfig } from '../../../../utils/firebase';
-import { v4 } from "uuid";
 import Swal from 'sweetalert2';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
-const ProductUpdate = () => {
-  const { id } = useParams();
-
+const ProductCreate = () => {
   const { http } = AuthUser()
   const { accessToken } = useAuth()
   const navigate = useNavigate()
 
-  const updateProductFormLayout = {
+  const createProductFormLayout = {
     labelCol: {
       span: 16
     },
@@ -31,10 +28,23 @@ const ProductUpdate = () => {
 
   const [form] = Form.useForm();
   const [listCategories, setListCategories] = useState([])
-  const [product, setProduct] = useState({})
-  const [options, setOptions] = useState([]);
   const [fileList, setFileList] = useState([]);
-  const [currentImageUrls, setCurrentImageUrls] = useState([]);
+
+  // Chuyển đổi dữ liệu để phù hợp với định dạng của react-select
+  const options = listCategories.map(group => ({
+    label: group.group,
+    options: group.categories.map(category => ({
+      value: category.id,
+      label: category.name,
+    })),
+  }));
+
+  const uploadImage = async (file, latestProductId) => {
+    const storageRef = ref(storage, `products/${latestProductId}/${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const url = await getDownloadURL(snapshot.ref);
+    return url;
+  };
 
   // Function to create folder URL
   const createFolderUrl = (folderId) => {
@@ -42,26 +52,11 @@ const ProductUpdate = () => {
     return baseUrl;
   };
 
-  // Function to upload image
-  const uploadImage = async (file, productId) => {
-    const storageRef = ref(storage, `products/${productId}/${file.name}`);
-    const snapshot = await uploadBytes(storageRef, file);
-    const url = await getDownloadURL(snapshot.ref);
-    console.log('Uploaded url:', url)
-    return url;
-  };
-
-  // Function to delete image
-  const deleteImage = async (url) => {
-    const fileRef = ref(storage, url);
-    await deleteObject(fileRef);
-  };
-
   const onFinish = async (values) => {
     try {
       Swal.fire({
         title: 'Processing...',
-        text: 'Please wait while we update information',
+        text: 'Please wait while we upload your images and create the product.',
         allowOutsideClick: false,
         showConfirmButton: false,
         icon: 'info',
@@ -70,16 +65,17 @@ const ProductUpdate = () => {
         }
       });
 
-      const productId = product.id;
-      const folderUrl = createFolderUrl(productId);
-      
-      // Xử lý ảnh mới
-      const newFiles = fileList.filter(file => !currentImageUrls.includes(file.url));
-      await Promise.all(newFiles.map(file => uploadImage(file.originFileObj, productId)));
-      
-      // Xoá các ảnh đã bị xoá
-      const deleteFiles = currentImageUrls.filter(url => !fileList.some(file => file.url === url));
-      await Promise.all(deleteFiles.map(url => deleteImage(url)));
+      const response = await http.get('/shop/products/latest-id');
+      const latestProductId = response.data.data;
+
+      const newProductId = latestProductId + 1;
+      const folderUrl = createFolderUrl(newProductId);
+
+      const uploadPromises = fileList.map(file => uploadImage(file.originFileObj, newProductId));
+      const uploadedUrls = await Promise.all(uploadPromises);
+
+      console.log('Upload urls', uploadedUrls)
+      console.log('Folder url:', folderUrl)
 
       const formData = new FormData();
       formData.append('name', values.name);
@@ -87,29 +83,14 @@ const ProductUpdate = () => {
       formData.append('price', values.price);
       formData.append('image', folderUrl);
       formData.append('quantity', values.quantity);
-      formData.append('sold_quantity', values.soldQuantity);
       formData.append('status', 1); // Selling true
       formData.append('product_category_id', values.category.value);
 
-      // Tạo chuỗi URL encoded
-      const urlEncodedData = new URLSearchParams();
-      urlEncodedData.append('name', values.name);
-      urlEncodedData.append('description', values.description);
-      urlEncodedData.append('price', values.price);
-      urlEncodedData.append('quantity', values.quantity);
-      urlEncodedData.append('sold_quantity', values.soldQuantity);
-      urlEncodedData.append('status', 1);
-      urlEncodedData.append('product_category_id', values.category.value);
-
-      await http.put(`/shop/products/${id}`, urlEncodedData, {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        }
-      });
+      await http.post('/shop/products', formData)
 
       Swal.fire({
         title: 'Done',
-        text: 'Successfully updated product!',
+        text: 'Product created successfully!',
         icon: 'success',
       }).then(() => {
         navigate(0)
@@ -138,13 +119,29 @@ const ProductUpdate = () => {
     })
   }
 
-  const handleFileListChange = (newFileList) => {
-    setFileList(newFileList);
+  const normFile = (e) => {
+    console.log('Upload event:', e);
+    if (Array.isArray(e)) {
+      return e;
+    }
+    return e?.fileList;
   };
 
-  const handleRemove = (file) => {
-    setFileList((prevFileList) => prevFileList.filter(item => item.uid !== file.uid));
+  const handleFileListChange = (newFileList) => {
+    const uniqueFileList = [];
+    const fileMap = new Map();
+
+    // Add previous files to the map
+    fileList.forEach(file => fileMap.set(file.uid, file));
+    // Add new files to the map
+    newFileList.forEach(file => fileMap.set(file.uid, file));
+
+    // Convert the map back to an array
+    fileMap.forEach(file => uniqueFileList.push(file));
+
+    setFileList(uniqueFileList);
   };
+
 
   useEffect(() => {
     const fetchProductCategories = async () => {
@@ -160,88 +157,17 @@ const ProductUpdate = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken])
 
-  // useEffect để thiết lập options khi listCategories thay đổi
-  useEffect(() => {
-    const newOptions = listCategories.map(group => ({
-      label: group.group,
-      options: group.categories.map(category => ({
-        value: category.id,
-        label: category.name,
-      })),
-    }));
-    setOptions(newOptions);
-  }, [listCategories]);
-
-  useEffect(() => {
-    const fetchProduct = async () => {
-      try {
-        const response = await http.get(`/shop/products/${id}`)
-        const productData = response.data.data;
-        console.log(productData);
-
-        setProduct(productData);
-
-        // Fetch images from Firebase Storage
-        if (productData.image) {
-          const imageRef = ref(storage, productData.image);
-          const imageList = await listAll(imageRef);
-          const imageUrls = await Promise.all(
-            imageList.items.map(itemRef => getDownloadURL(itemRef))
-          );
-
-          const initialFileList = imageUrls.map(url => ({
-            uid: url, // UID phải duy nhất, có thể sử dụng url
-            name: url.split('/').pop(),
-            status: 'done',
-            url: url, // URL của file
-          }));
-
-          console.log('Initial filelist:', initialFileList)
-
-          setFileList(initialFileList);
-          setCurrentImageUrls(imageUrls);
-        }
-
-        // Chỉ tìm selectedCategory khi options đã được thiết lập
-        if (options.length > 0) {
-          const selectedCategory = options
-            .flatMap(group => group.options)
-            .find(option => option.value === productData.category.id);
-
-          console.log(selectedCategory);
-
-          form.setFieldsValue({
-            name: productData.name,
-            category: selectedCategory || null,
-            price: productData.price,
-            quantity: productData.quantity,
-            soldQuantity: productData.sold_quantity,
-            description: productData.description,
-          });
-        }
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    // Chỉ gọi fetchProduct khi options đã được thiết lập
-    if (options.length > 0) {
-      fetchProduct();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken, options])
-
   return (
     <div className='flex flex-col w-full h-full items-start justify-start gap-4'>
       <div className='flex flex-row w-full items-start gap-6'>
         <div className='flex flex-col w-[58%] h-full items-start justify-start bg-white p-6 rounded-md'>
           <h1 className='text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400'>Basic Information</h1>
           <Form
-            {...updateProductFormLayout}
+            {...createProductFormLayout}
             className="w-full mt-2"
             form={form}
             layout='vertical'
-            name="updateProductForm"
+            name="createProductForm"
             labelAlign='left'
             labelWrap='true'
             size='large'
@@ -266,7 +192,7 @@ const ProductUpdate = () => {
                 />
               </Form.Item>
               <Form.Item
-                className='flex-1 z-10'
+                className='flex-1'
                 label="Category"
                 name="category"
                 rules={[
@@ -277,15 +203,12 @@ const ProductUpdate = () => {
                 ]}
                 hasFeedback
               >
-                <Select
-                  options={options}
-                  placeholder="Select a category"
-                />
+                <Select options={options} />
               </Form.Item>
             </div>
-            <div className='flex flex-row items-center justify-between'>
+            <div className='flex flex-row items-center gap-4'>
               <Form.Item
-                className='w-60'
+                className='flex-1'
                 label="Price"
                 name="price"
                 rules={[
@@ -303,7 +226,7 @@ const ProductUpdate = () => {
                 />
               </Form.Item>
               <Form.Item
-                className='w-60'
+                className='flex-1'
                 label="Stock"
                 name="quantity"
                 rules={[
@@ -319,24 +242,6 @@ const ProductUpdate = () => {
                   placeholder='Set stock here...'
                   autoComplete='stock'
 
-                />
-              </Form.Item>
-              <Form.Item
-                className='w-60'
-                label="Sold Quantity"
-                name="soldQuantity"
-                rules={[
-                  {
-                    required: true,
-                    message: 'Sold quantity is required!',
-                  },
-                ]}
-                hasFeedback
-              >
-                <InputNumber
-                  className='w-full'
-                  placeholder='Set sold quantity here...'
-                  autoComplete='soldQuantity'
                 />
               </Form.Item>
             </div>
@@ -363,11 +268,11 @@ const ProductUpdate = () => {
         <div className='flex flex-col w-[42%] h-full items-start justify-start bg-white p-6 rounded-md'>
           <h1 className='text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400'>Galleries</h1>
           <Form
-            {...updateProductFormLayout}
-            className="w-full mt-6"
+            {...createProductFormLayout}
+            className="w-full mt-2"
             form={form}
             layout='vertical'
-            name="updateProductForm"
+            name="createProductForm"
             labelAlign='left'
             labelWrap='true'
             size='large'
@@ -375,32 +280,54 @@ const ProductUpdate = () => {
             onFinish={onFinish}
             onFinishFailed={onFinishFailed}
           >
-            <Upload
-              listType="picture-card"
-              beforeUpload={() => false}
-              onChange={({ fileList: newFileList }) => handleFileListChange(newFileList)}
-              onRemove={(file) => handleRemove(file)}
-              fileList={fileList}
+            <Form.Item
+              label="Upload"
+              name="upload"
+              valuePropName="fileList"
+              getValueFromEvent={normFile}
             >
-              <Button icon={<UploadOutlined />}>Click to upload</Button>
-            </Upload>
+              <Upload
+                name="logo"
+                listType="picture-card"
+                beforeUpload={() => false}
+                onChange={({ fileList }) => handleFileListChange(fileList)}
+              >
+                <Button icon={<UploadOutlined />}>Click to upload</Button>
+              </Upload>
+            </Form.Item>
+            <Form.Item label="Dragger">
+              <Form.Item name="dragger" valuePropName="fileList" getValueFromEvent={normFile} noStyle>
+                <Upload.Dragger
+                  name="files"
+                  listType='text'
+                  beforeUpload={() => false}
+                  onChange={({ fileList }) => handleFileListChange(fileList)}
+                >
+                  <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                  </p>
+                  <p className="ant-upload-text">Click or drag file to this area to upload</p>
+                  <p className="ant-upload-hint">Support for a single or bulk upload.</p>
+                </Upload.Dragger>
+              </Form.Item>
+            </Form.Item>
           </Form>
         </div>
       </div>
       <Form
         className="w-full mt-2"
         form={form}
-        name="updateProductForm"
+        name="createProductForm"
         onFinish={onFinish}
         onFinishFailed={onFinishFailed}
       >
         <button className='flex flex-row items-center justify-center w-full gap-2 bg-blue-600 rounded-md px-4 py-3 hover:opacity-85 transition duration-300'>
-          <FaEdit size={24} style={{ color: 'white' }} />
-          <span className='text-white text-xl font-semibold'>Update Product</span>
+          <FaCloudUploadAlt size={24} style={{ color: 'white' }} />
+          <span className='text-white text-xl font-semibold'>Create Product</span>
         </button>
       </Form>
     </div>
   )
 }
 
-export default ProductUpdate
+export default ProductCreate
