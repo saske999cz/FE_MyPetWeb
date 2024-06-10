@@ -35,6 +35,10 @@ const routesConfig = {
     breadcrumb: 'Invoice View',
     parent: '/dashboard/invoice-list',
   },
+  '/dashboard/profile': {
+    title: 'Profile',
+    breadcrumb: 'Profile',
+  },
 };
 
 const findRouteConfig = (pathname) => {

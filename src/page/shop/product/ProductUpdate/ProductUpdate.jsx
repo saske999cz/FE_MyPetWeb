@@ -1,15 +1,14 @@
 import { Button, Form, Input, InputNumber, Upload } from 'antd'
 import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect, useState } from 'react'
-import { FaCloudUploadAlt, FaEdit } from 'react-icons/fa';
-import { InboxOutlined, UploadOutlined } from '@ant-design/icons';
+import { FaEdit } from 'react-icons/fa';
+import { UploadOutlined } from '@ant-design/icons';
 import Select from 'react-select'
 import AuthUser from '../../../../utils/AuthUser';
 import { useAuth } from '../../../../utils/AuthContext';
 import { toast } from 'react-toastify';
 import { uploadBytes, getDownloadURL, ref, listAll, deleteObject } from 'firebase/storage';
 import { storage, firebaseConfig } from '../../../../utils/firebase';
-import { v4 } from "uuid";
 import Swal from 'sweetalert2';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -80,16 +79,6 @@ const ProductUpdate = () => {
       // Xoá các ảnh đã bị xoá
       const deleteFiles = currentImageUrls.filter(url => !fileList.some(file => file.url === url));
       await Promise.all(deleteFiles.map(url => deleteImage(url)));
-
-      const formData = new FormData();
-      formData.append('name', values.name);
-      formData.append('description', values.description);
-      formData.append('price', values.price);
-      formData.append('image', folderUrl);
-      formData.append('quantity', values.quantity);
-      formData.append('sold_quantity', values.soldQuantity);
-      formData.append('status', 1); // Selling true
-      formData.append('product_category_id', values.category.value);
 
       // Tạo chuỗi URL encoded
       const urlEncodedData = new URLSearchParams();
@@ -285,7 +274,7 @@ const ProductUpdate = () => {
             </div>
             <div className='flex flex-row items-center justify-between'>
               <Form.Item
-                className='w-60'
+                className='w-[30%]'
                 label="Price"
                 name="price"
                 rules={[
@@ -303,7 +292,7 @@ const ProductUpdate = () => {
                 />
               </Form.Item>
               <Form.Item
-                className='w-60'
+                className='w-[30%]'
                 label="Stock"
                 name="quantity"
                 rules={[
@@ -322,7 +311,7 @@ const ProductUpdate = () => {
                 />
               </Form.Item>
               <Form.Item
-                className='w-60'
+                className='w-[30%]'
                 label="Sold Quantity"
                 name="soldQuantity"
                 rules={[

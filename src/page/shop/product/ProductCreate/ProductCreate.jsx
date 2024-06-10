@@ -175,7 +175,7 @@ const ProductCreate = () => {
           >
             <div className='flex flex-row items-center gap-4'>
               <Form.Item
-                className='flex-1'
+                className='w-[50%]'
                 label="Name"
                 name="name"
                 rules={[
@@ -192,7 +192,7 @@ const ProductCreate = () => {
                 />
               </Form.Item>
               <Form.Item
-                className='flex-1'
+                className='w-[50%]'
                 label="Category"
                 name="category"
                 rules={[
@@ -208,7 +208,7 @@ const ProductCreate = () => {
             </div>
             <div className='flex flex-row items-center gap-4'>
               <Form.Item
-                className='flex-1'
+                className='w-[50%]'
                 label="Price"
                 name="price"
                 rules={[
@@ -226,7 +226,7 @@ const ProductCreate = () => {
                 />
               </Form.Item>
               <Form.Item
-                className='flex-1'
+                className='w-[50%]'
                 label="Stock"
                 name="quantity"
                 rules={[

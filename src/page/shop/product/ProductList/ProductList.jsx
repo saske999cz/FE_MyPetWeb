@@ -4,7 +4,7 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FaClockRotateLeft, FaFilter, FaPlus, FaProductHunt, FaStar } from "react-icons/fa6";
 import { FaBagShopping } from "react-icons/fa6";
-import { Divider, Table, Tooltip } from 'antd';
+import { Button, Divider, Table, Tooltip } from 'antd';
 import { MdCategory, MdOutlinePets } from "react-icons/md";
 import { VscFeedback } from "react-icons/vsc";
 import { FaEye, FaPencilAlt, FaSearch, FaTrash, FaTrashRestore } from "react-icons/fa";
@@ -103,6 +103,8 @@ const ProductList = () => {
   const TOOLTIP_MESSAGE = "Need to combine with other * to search"
 
   const [loading, setLoading] = useState(true);
+  const [searchProductInput, setSearchProductInput] = useState('');
+  const [searchDeletedProductInput, setSearchDeletedProductInput] = useState('');
 
   const handleClickCreateButton = () => {
     navigate('/dashboard/product-create')
@@ -193,7 +195,7 @@ const ProductList = () => {
 
   // --------------     CATEGORY BY     --------------
   const ALL_CATEGORY_FILTER = 'All'
-  const [category, setCategory] = useState()
+  const [category, setCategory] = useState(ALL_CATEGORY_FILTER)
   const [categoryDeleted, setCategoryDeleted] = useState()
   const [listCategories, setListCategories] = useState([])
 
@@ -226,14 +228,36 @@ const ProductList = () => {
   }
 
   // --------------     SEARCH PRODUCT     --------------
+  const handleSearchProduct = (e) => {
+    setSearchProductInput(e.target.value)
+  }
+
+  const handleSearchDeletedProduct = (e) => {
+    setSearchDeletedProductInput(e.target.value)
+  }
+  
   const onSearch = (value) => {
     const lowercaseTarget = target.charAt(0).toLocaleLowerCase() + target.slice(1)
 
-    http.get(`shop/products/search?page_number=${currentPage}&num_of_page=${pageSize}&category=${category}&target=${lowercaseTarget}&name=${value}`)
+    http.get(`shop/products/search?page_number=${currentPage}&num_of_page=${pageSize}&category=${category}&target=${lowercaseTarget}&name=${searchProductInput}`)
       .then((resolve) => {
-        console.log('List Products:', resolve)
-        setListProducts(resolve.data.data)
+        console.log(resolve)
+        
+        const productData = resolve.data.data
         setTotalProducts(resolve.data.pagination.total)
+
+        const productsWithImagesPromises = productData.map((product) => {
+          return new Promise((resolve) => {
+            fetchImages(product.image, (fetchedImages) => {
+              resolve({ ...product, image_url: fetchedImages[0] || '' });
+            });
+          });
+        });
+
+        Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+          setListProducts(productsWithImages);
+          setLoading(false);
+        });
 
         toast.success('Successfully search product', {
           position: "top-right",
@@ -248,17 +272,41 @@ const ProductList = () => {
       })
       .catch((reject) => {
         console.log(reject)
+        if (reject.response.status === 404) {
+          toast.error(reject.response.data.message, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: 0,
+            theme: "colored",
+          })
+        }
       })
   }
 
   const onSearchDeleted = (value) => {
     const lowercaseTarget = targetDeleted.charAt(0).toLocaleLowerCase() + targetDeleted.slice(1)
 
-    http.get(`shop/products/search-deleted?page_number=${currentPageDeleted}&num_of_page=${pageSizeDeleted}&category=${categoryDeleted}&target=${lowercaseTarget}&name=${value}`)
+    http.get(`shop/products/search-deleted?page_number=${currentPageDeleted}&num_of_page=${pageSizeDeleted}&category=${categoryDeleted}&target=${lowercaseTarget}&name=${searchDeletedProductInput}`)
       .then((resolve) => {
-        console.log('List Deleted Products:', resolve)
-        setListDeletedProducts(resolve.data.data)
+        const productData = resolve.data.data
         setTotalDeletedProducts(resolve.data.pagination.total)
+
+        const productsWithImagesPromises = productData.map((product) => {
+          return new Promise((resolve) => {
+            fetchImages(product.image, (fetchedImages) => {
+              resolve({ ...product, image_url: fetchedImages[0] || '' });
+            });
+          });
+        });
+
+        Promise.all(productsWithImagesPromises).then((productsWithImages) => {
+          setListDeletedProducts(productsWithImages);
+          setLoading(false);
+        });
 
         toast.success('Successfully search deleted product', {
           position: "top-right",
@@ -272,7 +320,18 @@ const ProductList = () => {
         })
       })
       .catch((reject) => {
-        console.log(reject)
+        if (reject.response.status === 404) {
+          toast.error(reject.response.data.message, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            progress: 0,
+            theme: "colored",
+          })
+        }
       })
   }
 
@@ -462,7 +521,18 @@ const ProductList = () => {
             });
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filter === BEST_SELLING_FILTER) {
         http.get(`shop/products/best-selling?page_number=${currentPage}&num_of_page=${pageSize}`)
@@ -494,7 +564,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filter === HIGHEST_RATING_FILTER) {
         http.get(`shop/products/highest-rating?page_number=${currentPage}&num_of_page=${pageSize}`)
@@ -526,7 +607,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filter === LOWEST_RATING_FILTER) {
         http.get(`shop/products/lowest-rating?page_number=${currentPage}&num_of_page=${pageSize}`)
@@ -558,7 +650,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filter === SOLD_OUT) {
         http.get(`shop/products/sold-out?page_number=${currentPage}&num_of_page=${pageSize}`)
@@ -590,7 +693,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filter === PRICE_ASCENDING_FILTER) {
         http.get(`shop/products/sort?page_number=${currentPage}&num_of_page=${pageSize}`)
@@ -622,7 +736,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filter === PRICE_DESCENDING_FILTER) {
         http.get(`shop/products/sort?page_number=${currentPage}&num_of_page=${pageSize}&order=desc`)
@@ -654,7 +779,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else {
         http.get(`shop/products/rating?page_number=${currentPage}&num_of_page=${pageSize}&rating=${rating}`)
@@ -686,7 +822,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       }
     }
@@ -722,7 +869,18 @@ const ProductList = () => {
             });
           })
           .catch((reject) => {
-            console.log(reject);
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filterDeleted === BEST_SELLING_FILTER) {
         http.get(`shop/products/best-selling?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)
@@ -754,7 +912,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filterDeleted === HIGHEST_RATING_FILTER) {
         http.get(`shop/products/highest-rating?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)
@@ -786,7 +955,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filterDeleted === LOWEST_RATING_FILTER) {
         http.get(`shop/products/lowest-rating?page_number=${currentPage}&num_of_page=${pageSize}`)
@@ -818,7 +998,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filterDeleted === SOLD_OUT) {
         http.get(`shop/products/sold-out?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)
@@ -850,7 +1041,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filterDeleted === PRICE_ASCENDING_FILTER) {
         http.get(`shop/products/sort?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)
@@ -882,7 +1084,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else if (filterDeleted === PRICE_DESCENDING_FILTER) {
         http.get(`shop/products/sort?page_number=${currentPage}&num_of_page=${pageSize}&order=desc&deleted=true`)
@@ -914,7 +1127,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       } else {
         http.get(`shop/products/rating?page_number=${currentPage}&num_of_page=${pageSize}&rating=${ratingDeleted}&deleted=true`)
@@ -934,7 +1158,7 @@ const ProductList = () => {
               setListDeletedProducts(productsDeletedWithImages);
             });
 
-            toast.success(`Successfully filtered by ${rating} star`, {
+            toast.success(`Successfully filtered by ${ratingDeleted} star`, {
               position: "top-right",
               autoClose: 3000,
               hideProgressBar: false,
@@ -946,7 +1170,18 @@ const ProductList = () => {
             })
           })
           .catch((reject) => {
-            console.log(reject)
+            if (reject.response.status === 404) {
+              toast.error(reject.response.data.message, {
+                position: "top-right",
+                autoClose: 3000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: 0,
+                theme: "colored",
+              })
+            }
           })
       }
     }
@@ -1011,11 +1246,11 @@ const ProductList = () => {
       </div>
       <div className='flex flex-col items-start justify-between bg-white p-6 rounded-md'>
         <div className='flex flex-row items-start justify-end w-full mb-6'>
-          <button 
-            onClick={handleClickCreateButton} 
+          <button
+            onClick={handleClickCreateButton}
             className='flex flex-row items-center gap-2 px-4 py-2 bg-blue-600 rounded-md hover:opacity-80 transition duration-300'
           >
-            <FaPlus size={18} style={{color: 'white'}} />
+            <FaPlus size={18} style={{ color: 'white' }} />
             <p className='text text-[16] text-white'>Create</p>
           </button>
         </div>
@@ -1093,10 +1328,15 @@ const ProductList = () => {
             <Search
               className='mt-2'
               placeholder="Search Product"
-              allowClear
-              enterButton="Search"
+              enterButton={
+                <Button type="primary" disabled={searchProductInput.trim() === ''}>
+                  Search
+                </Button>
+              }
               size="large"
               onSearch={onSearch}
+              onChange={handleSearchProduct}
+              value={searchProductInput}
             />
           </div>
         </div>
@@ -1133,11 +1373,11 @@ const ProductList = () => {
               render={(text, record, index) => {
                 return (
                   <div className='flex flex-row items-center gap-3'>
-                    <LazyLoadImage 
-                      key={index} 
-                      src={record.image_url} 
-                      alt={`Product ${index}`} 
-                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1 object-cover' 
+                    <LazyLoadImage
+                      key={index}
+                      src={record.image_url}
+                      alt={`Product ${index}`}
+                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1 object-cover'
                       effect='blur'
                       placeholderSrc={loadingImg}
                     />
@@ -1292,11 +1532,16 @@ const ProductList = () => {
             </div>
             <Search
               className='mt-2'
-              placeholder="Search Product"
-              allowClear
-              enterButton="Search"
+              placeholder="Search Deleted Product"
+              enterButton={
+                <Button type="primary" disabled={searchDeletedProductInput.trim() === ''}>
+                  Search
+                </Button>
+              }
               size="large"
               onSearch={onSearchDeleted}
+              onChange={handleSearchDeletedProduct}
+              value={searchDeletedProductInput}
             />
           </div>
         </div>
@@ -1334,11 +1579,11 @@ const ProductList = () => {
               render={(text, record, index) => {
                 return (
                   <div className='flex flex-row items-center gap-3'>
-                    <LazyLoadImage 
-                      key={index} 
-                      src={record.image_url} 
-                      alt={`Product Deleted ${index}`} 
-                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1 object-cover' 
+                    <LazyLoadImage
+                      key={index}
+                      src={record.image_url}
+                      alt={`Product Deleted ${index}`}
+                      className='w-10 h-10 bg-white border-neutral-300 border-2 rounded-md p-1 object-cover'
                       effect='blur'
                       placeholderSrc={loadingImg}
                     />

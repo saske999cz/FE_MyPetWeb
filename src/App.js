@@ -19,6 +19,7 @@ import ForgotPassword from "./page/forgotPassword/ForgotPassword";
 import "react-toastify/dist/ReactToastify.css";
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import ProductCreate from "./page/shop/product/ProductCreate/ProductCreate";
+import Profile from "./page/profile/Profile";
 
 function App() {
   const ROLE_ADMIN = "ROLE_ADMIN"
@@ -76,6 +77,10 @@ function App() {
             <Route
               path="invoice-view"
               element={<AuthRoute roles={[ROLE_SHOP]}><InvoiceDetail /></AuthRoute>}
+            />
+            <Route
+              path="profile"
+              element={<AuthRoute roles={[ROLE_SHOP]}><Profile /></AuthRoute>}
             />
           </Route>
 
