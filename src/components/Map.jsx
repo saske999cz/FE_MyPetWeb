@@ -34,4 +34,4 @@ const Map = ({ address, coords }) => {
   )
 }
 
-export default memo(Map)
+export default Map

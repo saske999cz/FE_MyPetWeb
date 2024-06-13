@@ -8,16 +8,15 @@ import { toast } from 'react-toastify';
 import { uploadBytes, getDownloadURL, ref, deleteObject, listAll } from 'firebase/storage';
 import { storage, firebaseConfig } from '../../utils/firebase';
 import { useNavigate } from 'react-router-dom';
+import Map from '../../components/Map';
 import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 import Swal from 'sweetalert2';
 import AuthUser from '../../utils/AuthUser';
-import Map from '../../components/Map';
 import moment from 'moment';
 import './Profile.scss';
 import { useDispatch } from 'react-redux';
 import { addAvatar } from '../../redux/actions';
 import { BeatLoader } from 'react-spinners';
-import { updatePassword } from 'firebase/auth';
 import { MdOutlineSecurity } from 'react-icons/md';
 
 const Profile = () => {
@@ -55,7 +54,21 @@ const Profile = () => {
   const [currentCertificationUrls, setCurrentCertificationUrls] = useState([]);
 
   const [location, setLocation] = useState('');
-  const [coords, setCoords] = useState(null)
+  const [coords, setCoords] = useState({
+    lat: 10.99835602,
+    lng: 77.01502627
+  })
+
+  const [mapsLoaded, setMapsLoaded] = useState(false);
+
+  useEffect(() => {
+    const checkGoogleMapsLoaded = setInterval(() => {
+      if (window.google && window.google.maps) {
+        setMapsLoaded(true);
+        clearInterval(checkGoogleMapsLoaded);
+      }
+    }, 1000);
+  }, []);
 
   const handleEditProfile = () => {
     setEditProfileMode(true);
@@ -463,12 +476,12 @@ const Profile = () => {
   // Get shop address location
   useEffect(() => {
     const getCoords = async () => {
-      if (location) {
+      if (location && mapsLoaded) {
         try {
+          console.log(location)
+          console.log(await geocodeByAddress(location))
           const results = await geocodeByAddress(location)
           const latLng = await getLatLng(results[0])
-          console.log(results)
-          console.log(latLng)
           setCoords(latLng)
         } catch (error) {
           console.log(error)
@@ -488,7 +501,7 @@ const Profile = () => {
 
     getCoords()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location])
+  }, [location, mapsLoaded])
 
   useEffect(() => {
     if (shopProfile && shopProfile.work_time) {

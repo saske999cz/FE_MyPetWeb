@@ -236,7 +236,7 @@ const ProductList = () => {
     setSearchDeletedProductInput(e.target.value)
   }
   
-  const onSearch = (value) => {
+  const onSearch = () => {
     const lowercaseTarget = target.charAt(0).toLocaleLowerCase() + target.slice(1)
 
     http.get(`shop/products/search?page_number=${currentPage}&num_of_page=${pageSize}&category=${category}&target=${lowercaseTarget}&name=${searchProductInput}`)
@@ -287,7 +287,7 @@ const ProductList = () => {
       })
   }
 
-  const onSearchDeleted = (value) => {
+  const onSearchDeleted = () => {
     const lowercaseTarget = targetDeleted.charAt(0).toLocaleLowerCase() + targetDeleted.slice(1)
 
     http.get(`shop/products/search-deleted?page_number=${currentPageDeleted}&num_of_page=${pageSizeDeleted}&category=${categoryDeleted}&target=${lowercaseTarget}&name=${searchDeletedProductInput}`)
@@ -869,18 +869,7 @@ const ProductList = () => {
             });
           })
           .catch((reject) => {
-            if (reject.response.status === 404) {
-              toast.error(reject.response.data.message, {
-                position: "top-right",
-                autoClose: 3000,
-                hideProgressBar: false,
-                closeOnClick: true,
-                pauseOnHover: true,
-                draggable: true,
-                progress: 0,
-                theme: "colored",
-              })
-            }
+            console.log(reject)
           })
       } else if (filterDeleted === BEST_SELLING_FILTER) {
         http.get(`shop/products/best-selling?page_number=${currentPage}&num_of_page=${pageSize}&deleted=true`)

@@ -175,20 +175,6 @@ const Header = ({ username, email, avatar }) => {
               <MenuItem>
                 {({ focus }) => (
                   <div
-                    onClick={() => navigate('/settings')}
-                    className={classNames(
-                      focus && 'bg-gray-100',
-                      'active:bg-gray-200 flex flex-row items-center gap-2 rounded-sm px-3 py-2 text-gray-700 cursor-pointer focus:bg-gray-200'
-                    )}
-                  >
-                    <HiOutlineCog fontSize={20} />
-                    Settings
-                  </div>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <div
                     onClick={handleLogout}
                     className={classNames(
                       focus && 'bg-gray-100',

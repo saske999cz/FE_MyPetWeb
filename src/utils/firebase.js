@@ -11,7 +11,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCUpFH3N2cKhv1VFzTSmZJNC0O_VKoRoWQ",
   authDomain: "petshop-3d4ae.firebaseapp.com",
   projectId: "petshop-3d4ae",
-  storageBucket: "petshop-3d4ae.appspot.com",
+  storageBucket: "new_petshop_bucket",
   messagingSenderId: "224358929740",
   appId: "1:224358929740:web:d7415b94d29830f25eabe9"
 };
