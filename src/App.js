@@ -1,7 +1,7 @@
 import "./css/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./page/LandingPage";
-import Dashboard from "./page/Dashboard";
+import Dashboard from "./page/shop/dashboard/Dashboard";
 import Layout from "./layouts/layout";
 import ScrollToTop from "./utils/ScrollToTop";
 import { ToastContainer } from "react-toastify";

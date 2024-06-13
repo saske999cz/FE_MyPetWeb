@@ -1,21 +1,20 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import classNames from 'classnames';
-import revenueIcon from '../assets/images/revenue.png'
-import selledIcon from '../assets/images/selled.png'
-import { getOrderStatus } from '../lib/helpers'
+import revenueIcon from '../../../assets/images/revenue.png'
+import selledIcon from '../../../assets/images/selled.png'
 import { HiOutlineTrendingDown, HiOutlineTrendingUp } from 'react-icons/hi';
 import { IoBagHandle, IoPieChart, IoCart, IoStar } from 'react-icons/io5';
 import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FaClockRotateLeft, FaReplyAll } from "react-icons/fa6";
-import AuthUser from '../utils/AuthUser';
+import AuthUser from '../../../utils/AuthUser';
 import { format, set } from 'date-fns';
 import { toast } from 'react-toastify';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Label, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Select } from 'antd';
 import { Link } from 'react-router-dom';
 import { getDownloadURL, listAll, ref } from 'firebase/storage';
-import { storage } from '../utils/firebase';
+import { storage } from '../../../utils/firebase';
 import { BeatLoader } from 'react-spinners';
 const { Option } = Select;
 
@@ -99,6 +98,44 @@ function BoxWrapper({
       </Menu>
     </div>
   );
+}
+
+const getOrderStatus = (status) => {
+  // Convert status to uppercase to match the switch cases
+  const upperCaseStatus = status.toUpperCase();
+
+  switch (upperCaseStatus) {
+    case 'PAID':
+      return (
+        <span className="capitalize py-1 px-2 rounded-md text-xs text-sky-600 bg-sky-100">
+          {status.replaceAll('_', ' ').toLowerCase()}
+        </span>
+      )
+    case 'DELIVERING':
+      return (
+        <span className="capitalize py-1 px-2 rounded-md text-xs text-orange-600 bg-orange-100">
+          {status.replaceAll('_', ' ').toLowerCase()}
+        </span>
+      )
+    case 'DONE':
+      return (
+        <span className="capitalize py-1 px-2 rounded-md text-xs text-teal-600 bg-teal-100">
+          {status.replaceAll('_', ' ').toLowerCase()}
+        </span>
+      )
+    case 'CREATED':
+      return (
+        <span className="capitalize py-1 px-2 rounded-md text-xs text-yellow-600 bg-yellow-100">
+          {status.replaceAll('_', ' ').toLowerCase()}
+        </span>
+      )
+    default:
+      return (
+        <span className="capitalize py-1 px-2 rounded-md text-xs text-gray-600 bg-gray-100">
+          {status.replaceAll('_', ' ').toLowerCase()}
+        </span>
+      )
+  }
 }
 
 // --------------     BANNER     --------------
@@ -425,7 +462,7 @@ const Dashboard = () => {
     fetchPopularProduct()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-  
+
   if (loading) {
     return (
       <div className='h-full'>
@@ -433,7 +470,7 @@ const Dashboard = () => {
       </div>
     )
   }
-  
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex gap-6">
