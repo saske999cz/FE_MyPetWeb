@@ -105,7 +105,6 @@ const buildBreadcrumbs = (pathSnippets) => {
 const BreadcrumbCustom = ({ setTitle }) => {
   const location = useLocation();
   const pathSnippets = location.pathname.split('/').filter(i => i);
-  console.log('path snippets:', pathSnippets);
 
   const breadcrumbItems = buildBreadcrumbs(pathSnippets);
 

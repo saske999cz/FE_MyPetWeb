@@ -8,7 +8,7 @@ import { Button, Divider, Table, Tooltip } from 'antd';
 import { MdCategory, MdOutlinePets } from "react-icons/md";
 import { VscFeedback } from "react-icons/vsc";
 import { FaEye, FaPencilAlt, FaSearch, FaTrash, FaTrashRestore } from "react-icons/fa";
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Search from 'antd/es/input/Search';
 import './ProductList.scss'
 import { toast } from 'react-toastify';
@@ -1350,9 +1350,24 @@ const ProductList = () => {
           >
             <Column
               align='left'
-              title='UID'
+              title='No.'
+              key='no.'
+              render={(text, record, index) => (
+                <span className='font-semibold'>{currentPage * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>
+              )}
+            />
+            <Column
+              align='left'
+              title='ID'
               key='index'
-              render={(text, record, index) => <span className='font-semibold'>#{currentPage * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>}
+              dataIndex='id'
+              render={(text, _) => {
+                return (
+                  <Link to={`/dashboard/product-view/${text}`} className='font-semibold text-blue-500'>
+                    <span>#{text}</span>
+                  </Link>
+                )
+              }}
             />
             <Column
               align='left'
@@ -1380,21 +1395,21 @@ const ProductList = () => {
               title='Category'
               key='category'
               dataIndex='category'
-              render={(text, record) => text.name} // Renderer of the table cell. The return value should be a ReactNode (function(text, record, index) {})
+              render={(text, _) => text.name} // Renderer of the table cell. The return value should be a ReactNode (function(text, record, index) {})
             />
             <Column
               align='left'
               title='Target'
               key='target'
               dataIndex={['category', 'target']} // Display field of the data record, support nest path by string array
-              render={(text, record) => text.charAt(0).toUpperCase() + text.slice(1)}
+              render={(text, _) => text.charAt(0).toUpperCase() + text.slice(1)}
             />
             <Column
               align='left'
               title='Price'
               key='price'
               dataIndex='price'
-              render={(text, record) => <span className='font-semibold'>{currency(text)}</span>}
+              render={(text, _) => <span className='font-semibold'>{currency(text)}</span>}
             />
             <Column
               align='left'
@@ -1428,8 +1443,7 @@ const ProductList = () => {
             <Column
               align='center'
               title='Action'
-              key='solded'
-              dataIndex='rating'
+              key='action'
               render={(text, record) => (
                 <div className="flex flex-row items-center justify-evenly space-x-2 w-full my-1">
                   <button onClick={() => handleViewProduct(record)} className='bg-purple-200 rounded-md p-1.5'>
@@ -1554,11 +1568,24 @@ const ProductList = () => {
           >
             <Column
               align='left'
+              title='No.'
+              key='no.'
+              render={(text, record, index) => (
+                <span className='font-semibold'>{currentPageDeleted * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>
+              )}
+            />
+            <Column
+              align='left'
               title='UID'
               key='index'
-              render={(text, record, index) => (
-                <span className='font-semibold'>#{currentPageDeleted * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>
-              )}
+              dataIndex='id'
+              render={(text, _) => {
+                return (
+                  <Link to={`/dashboard/product-view/${text}`} className='font-semibold text-blue-500'>
+                    <span>#{text}</span>
+                  </Link>
+                )
+              }}
             />
             <Column
               align='left'
@@ -1586,21 +1613,21 @@ const ProductList = () => {
               title='Category'
               key='category'
               dataIndex='category'
-              render={(text, record) => text.name} // Renderer of the table cell. The return value should be a ReactNode (function(text, record, index) {})
+              render={(text, _) => text.name} // Renderer of the table cell. The return value should be a ReactNode (function(text, record, index) {})
             />
             <Column
               align='left'
               title='Target'
               key='target'
               dataIndex={['category', 'target']} // Display field of the data record, support nest path by string array
-              render={(text, record) => text.charAt(0).toUpperCase() + text.slice(1)}
+              render={(text, _) => text.charAt(0).toUpperCase() + text.slice(1)}
             />
             <Column
               align='left'
               title='Price'
               key='price'
               dataIndex='price'
-              render={(text, record) => <span className='font-semibold'>{currency(text)}</span>}
+              render={(text, _) => <span className='font-semibold'>{currency(text)}</span>}
             />
             <Column
               align='left'
@@ -1635,7 +1662,7 @@ const ProductList = () => {
               title='Deleted at'
               key='deleted_at'
               dataIndex='deleted_at'
-              render={(text, record) => {
+              render={(text, _) => {
                 const formatTime = (time) => {
                   return format(new Date(time), 'EEEE, dd-MM-yyyy HH:mm');
                 };
@@ -1649,7 +1676,7 @@ const ProductList = () => {
               align='center'
               title='Action'
               key='action'
-              render={(text, record) => (
+              render={(_, record) => (
                 <div className="flex flex-row items-center justify-evenly space-x-2 w-full my-1">
                   <button onClick={() => handleViewProduct(record)} className='bg-purple-200 rounded-md p-1.5'>
                     <FaEye size={18} className='text-purple-600' />
