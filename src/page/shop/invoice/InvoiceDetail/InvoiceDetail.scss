@@ -1,0 +1,33 @@
+.ant-table-thead .ant-table-cell {
+  background-color: #216bed !important;
+  color: #ffffff !important;
+}
+
+.ant-table-selection-column {
+  padding-inline: 28px !important;
+}
+
+.ant-dropdown-trigger>span {
+  color: #ffffff !important;
+}
+
+.avatar {
+  >span {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      border-style: solid;
+      border-width: 2px;
+      border-color: #b34512;
+      width: fit-content;
+
+      img {
+          background: #fff;
+          width: 96px;
+          height: 96px;
+          border-radius: 50%;
+          border: 3px solid #fff;
+          object-fit: cover;
+      }
+  }
+}

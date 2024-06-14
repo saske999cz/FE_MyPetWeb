@@ -235,14 +235,14 @@ const ProductList = () => {
   const handleSearchDeletedProduct = (e) => {
     setSearchDeletedProductInput(e.target.value)
   }
-  
+
   const onSearch = () => {
     const lowercaseTarget = target.charAt(0).toLocaleLowerCase() + target.slice(1)
 
     http.get(`shop/products/search?page_number=${currentPage}&num_of_page=${pageSize}&category=${category}&target=${lowercaseTarget}&name=${searchProductInput}`)
       .then((resolve) => {
         console.log(resolve)
-        
+
         const productData = resolve.data.data
         setTotalProducts(resolve.data.pagination.total)
 
