@@ -208,14 +208,14 @@ const InvoiceList = () => {
     }
   };
 
-  const handleViewInvoice = () => {
-    navigate('/dashboard/invoice-view')
+  const handleViewInvoice = (record) => {
+    navigate(`/dashboard/invoice-view/${record.id}`)
   }
 
   const handleDownloadInvoice = () => {
 
   }
-  const handleDeleteInvoice = () => {
+  const handleDeleteInvoice = (record) => {
 
   }
 
@@ -360,7 +360,9 @@ const InvoiceList = () => {
             <div className='flex flex-col items-start'>
               <div className='flex flex-row items-center gap-1'>
                 <AiFillProduct />
-                <span className='text-md font-semibold'>INVOICE STATUS BY</span>
+                <Tooltip title={TOOLTIP_MESSAGE}>
+                  <span className='text-md font-semibold'>INVOICE STATUS BY <span className='text-red-600'>*</span></span>
+                </Tooltip>
               </div>
               <select
                 className='minimal w-52 mt-2 h-10 px-4 py-2 border border-gray-300 rounded-md shadow-sm hover:cursor-pointer hover:border-blue-500 transition duration-200 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 appearance-none text-left'
@@ -447,7 +449,7 @@ const InvoiceList = () => {
           >
             <Column
               align='left'
-              title='NO.'
+              title='No.'
               key='no.'
               render={(text, record, index) => (
                 <span className='font-semibold'>{currentPage * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>

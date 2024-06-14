@@ -75,7 +75,7 @@ function App() {
               element={<AuthRoute roles={[ROLE_SHOP]}><InvoiceList /></AuthRoute>}
             />
             <Route
-              path="invoice-view"
+              path="invoice-view/:id"
               element={<AuthRoute roles={[ROLE_SHOP]}><InvoiceDetail /></AuthRoute>}
             />
             <Route

@@ -155,7 +155,6 @@ const Dashboard = () => {
   const [isFirstFetchProduct, setIsFirstFetchProduct] = useState(true);
   const [isFirstFetchOrder, setIsFirstFetchOrder] = useState(true);
 
-  // Tạo mảng các năm từ năm hiện tại đến 2 năm trước
   const currentYear = new Date().getFullYear();
   const revenueYears = [currentYear, currentYear - 1, currentYear - 2];
   const selledYears = [currentYear, currentYear - 1, currentYear - 2];
