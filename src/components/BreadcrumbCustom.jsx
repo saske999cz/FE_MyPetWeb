@@ -1,55 +1,114 @@
-import { Breadcrumb } from 'antd'
-import React, { useEffect } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Breadcrumb } from 'antd';
+import React, { useEffect } from 'react';
+import { Link, useLocation } from 'react-router-dom';
+
+const routesConfig = {
+  '/dashboard': {
+    title: 'Dashboard',
+    breadcrumb: 'Dashboard',
+  },
+  '/dashboard/product-list': {
+    title: 'Product List',
+    breadcrumb: 'Product List',
+  },
+  '/dashboard/product-create': {
+    title: 'Product Create',
+    breadcrumb: 'Product Create',
+    parent: '/dashboard/product-list',
+  },
+  '/dashboard/product-view': {
+    title: 'Product View',
+    breadcrumb: 'Product View',
+    parent: '/dashboard/product-list',
+  },
+  '/dashboard/product-update': {
+    title: 'Product Update',
+    breadcrumb: 'Product Update',
+    parent: '/dashboard/product-list',
+  },
+  '/dashboard/invoice-list': {
+    title: 'Invoice List',
+    breadcrumb: 'Invoice List',
+  },
+  '/dashboard/invoice-view': {
+    title: 'Invoice View',
+    breadcrumb: 'Invoice View',
+    parent: '/dashboard/invoice-list',
+  },
+  '/dashboard/profile': {
+    title: 'Profile',
+    breadcrumb: 'Profile',
+  },
+};
+
+const findRouteConfig = (pathname) => {
+  const matchedRoutes = Object.keys(routesConfig).filter(route =>
+    pathname === route || pathname.startsWith(route + '/')
+  );
+  const matchedRoute = matchedRoutes.length ? matchedRoutes[matchedRoutes.length - 1] : null;
+  return matchedRoute ? routesConfig[matchedRoute] : null;
+};
+
+const buildBreadcrumbs = (pathSnippets) => {
+  const breadcrumbItems = [];
+  let url = '';
+
+  pathSnippets.forEach((snippet, index) => {
+    const isDynamic = isNaN(snippet);
+    if (isDynamic) {
+      url += `/${snippet}`;
+    }
+    const routeConfig = findRouteConfig(url);
+
+    if (routeConfig) {
+      const isLast = index === pathSnippets.length - 1;
+
+      // Kiểm tra nếu routeConfig đã có trong breadcrumbItems hay chưa
+      const existingBreadcrumbIndex = breadcrumbItems.findIndex(item => item.key === url);
+      if (existingBreadcrumbIndex === -1) {
+        if (routeConfig.parent && !breadcrumbItems.some(item => item.key === routeConfig.parent)) {
+          const parentConfig = routesConfig[routeConfig.parent];
+          if (parentConfig) {
+            breadcrumbItems.push({
+              key: routeConfig.parent,
+              title: <Link to={routeConfig.parent}>{parentConfig.breadcrumb}</Link>,
+            });
+          }
+        }
+        breadcrumbItems.push({
+          key: url,
+          title: isLast ? (
+            <span>{routeConfig.breadcrumb}</span>
+          ) : (
+            <Link to={url}>{routeConfig.breadcrumb}</Link>
+          ),
+        });
+      } else {
+        breadcrumbItems.splice(existingBreadcrumbIndex + 1);
+      }
+    }
+  });
+
+  // Đảm bảo phần tử cuối cùng luôn là thẻ <span>
+  if (breadcrumbItems.length > 0) {
+    const lastIndex = breadcrumbItems.length - 1;
+    const lastItem = breadcrumbItems[lastIndex];
+    breadcrumbItems[lastIndex] = {
+      ...lastItem,
+      title: <span>{lastItem.title.props.children}</span>,
+    };
+  }
+
+  return breadcrumbItems;
+};
 
 const BreadcrumbCustom = ({ setTitle }) => {
-	// http://localhost:3000/dashboard/product-list => {pathname: '/dashboard/product-list', search: '', hash: '', state: null, key: 'pz1qnn9h'}
-	const location = useLocation();
-  const pathSnippets = location.pathname.split('/').filter(i => i); // ['dashboard', 'product-list']
+  const location = useLocation();
+  const pathSnippets = location.pathname.split('/').filter(i => i);
 
-  const breadcrumbItems = pathSnippets.map((_, index) => {
-    const url = `/${pathSnippets.slice(0, index + 1).join('/')}`; // /dashboard, /dashboard/product-list
-    const isLast = index === pathSnippets.length - 1; // false, true
+  const breadcrumbItems = buildBreadcrumbs(pathSnippets);
 
-    let title;
-    switch (url) {
-      case '/dashboard':
-        title = 'Dashboard';
-        break;
-      case '/dashboard/product-list':
-        title = 'Product List';
-        break;
-      case '/dashboard/product-view':
-        title = 'Product View';
-        break;
-      case '/dashboard/product-update':
-        title = 'Product Update';
-        break;
-      case '/dashboard/invoice-list':
-        title = 'Invoice List';
-        break;
-      case '/dashboard/invoice-view':
-        title = 'Invoice View';
-        break;
-      default:
-        title = '';
-    }
-
-    if (isLast && title) {
-      return {
-        key: url,
-        title: <span>{title}</span>,
-      };
-    }
-
-    return {
-      key: url,
-      title: <Link to={url}>{title}</Link>,
-    };
-  }); 
-	// [0: {key: '/dashboard', title: <Link to="/dashboard">Dashboard</Link>}, 1: {key: '/dashboard/product-list', title: <span>Product List<span>}]
-
-	useEffect(() => {
+  useEffect(() => {
     if (breadcrumbItems.length > 0) {
       const lastItem = breadcrumbItems[breadcrumbItems.length - 1];
       if (typeof lastItem.title === 'string') {
@@ -63,6 +122,6 @@ const BreadcrumbCustom = ({ setTitle }) => {
   return (
     <Breadcrumb separator="~" items={breadcrumbItems} />
   );
-}
+};
 
-export default BreadcrumbCustom
+export default BreadcrumbCustom;

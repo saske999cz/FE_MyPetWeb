@@ -26,12 +26,12 @@ export const DASHBOARD_SIDEBAR_TOP_LINKS = [
 		path: '/dashboard/invoice-list',
 		icon: <FaFileInvoiceDollar />
 	},
-	{
-		key: 'messages',
-		label: 'Messages',
-		path: '/messages',
-		icon: <HiOutlineAnnotation />
-	}
+	// {
+	// 	key: 'messages',
+	// 	label: 'Messages',
+	// 	path: '/messages',
+	// 	icon: <HiOutlineAnnotation />
+	// }
 ]
 
 export const DASHBOARD_SIDEBAR_BOTTOM_LINKS = [

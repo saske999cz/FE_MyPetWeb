@@ -22,7 +22,6 @@ const Layout = () => {
   const dispatch = useDispatch()
 
   // --------------------------     Fetch API     --------------------------
-
   useEffect(() => {
     const fetchAvatar = () => {
       getDownloadURL(avatarRef).then(url => {
@@ -32,7 +31,7 @@ const Layout = () => {
 
     fetchAvatar();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [avatarRef])
 
 	return (
 		<div className="bg-neutral-100 h-screen w-screen overflow-hidden flex flex-row">

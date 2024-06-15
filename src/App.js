@@ -1,7 +1,7 @@
 import "./css/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./page/LandingPage";
-import Dashboard from "./page/Dashboard";
+import Dashboard from "./page/shop/dashboard/Dashboard";
 import Layout from "./layouts/layout";
 import ScrollToTop from "./utils/ScrollToTop";
 import { ToastContainer } from "react-toastify";
@@ -18,6 +18,8 @@ import Register from "./page/register/Register";
 import ForgotPassword from "./page/forgotPassword/ForgotPassword";
 import "react-toastify/dist/ReactToastify.css";
 import 'react-lazy-load-image-component/src/effects/blur.css';
+import ProductCreate from "./page/shop/product/ProductCreate/ProductCreate";
+import Profile from "./page/profile/Profile";
 
 function App() {
   const ROLE_ADMIN = "ROLE_ADMIN"
@@ -57,11 +59,15 @@ function App() {
               element={<AuthRoute roles={[ROLE_SHOP]}><ProductList /></AuthRoute>}
             />
             <Route
-              path="product-view"
+              path="product-create"
+              element={<AuthRoute roles={[ROLE_SHOP]}><ProductCreate /></AuthRoute>}
+            />
+            <Route
+              path="product-view/:id"
               element={<AuthRoute roles={[ROLE_SHOP]}><ProductDetail /></AuthRoute>}
             />
             <Route
-              path="product-update"
+              path="product-update/:id"
               element={<AuthRoute roles={[ROLE_SHOP]}><ProductUpdate /></AuthRoute>}
             />
             <Route
@@ -69,8 +75,12 @@ function App() {
               element={<AuthRoute roles={[ROLE_SHOP]}><InvoiceList /></AuthRoute>}
             />
             <Route
-              path="invoice-view"
+              path="invoice-view/:id"
               element={<AuthRoute roles={[ROLE_SHOP]}><InvoiceDetail /></AuthRoute>}
+            />
+            <Route
+              path="profile"
+              element={<AuthRoute roles={[ROLE_SHOP]}><Profile /></AuthRoute>}
             />
           </Route>
 
