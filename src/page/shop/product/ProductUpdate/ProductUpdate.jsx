@@ -8,7 +8,7 @@ import AuthUser from '../../../../utils/AuthUser';
 import { useAuth } from '../../../../utils/AuthContext';
 import { toast } from 'react-toastify';
 import { uploadBytes, getDownloadURL, ref, listAll, deleteObject } from 'firebase/storage';
-import { storage, firebaseConfig } from '../../../../utils/firebase';
+import { storage } from '../../../../utils/firebase';
 import Swal from 'sweetalert2';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -34,12 +34,6 @@ const ProductUpdate = () => {
   const [options, setOptions] = useState([]);
   const [fileList, setFileList] = useState([]);
   const [currentImageUrls, setCurrentImageUrls] = useState([]);
-
-  // Function to create folder URL
-  const createFolderUrl = (folderId) => {
-    const baseUrl = `gs://${firebaseConfig.storageBucket}/products/${folderId}/`;
-    return baseUrl;
-  };
 
   // Function to upload image
   const uploadImage = async (file, productId) => {
@@ -70,7 +64,6 @@ const ProductUpdate = () => {
       });
 
       const productId = product.id;
-      const folderUrl = createFolderUrl(productId);
       
       // Xử lý ảnh mới
       const newFiles = fileList.filter(file => !currentImageUrls.includes(file.url));
@@ -158,7 +151,9 @@ const ProductUpdate = () => {
         label: category.name,
       })),
     }));
+
     setOptions(newOptions);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listCategories]);
 
   useEffect(() => {
@@ -217,6 +212,7 @@ const ProductUpdate = () => {
     if (options.length > 0) {
       fetchProduct();
     }
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, options])
 

@@ -16,7 +16,6 @@ import paypalLogo from '../../../../assets/images/paypal_logo.png'
 import codLogo from '../../../../assets/images/cod_logo.png'
 import currency from '../../../../utils/currency';
 import getOrderStatus from '../../../../utils/orderStatus';
-import { BiSolidCategoryAlt } from 'react-icons/bi';
 import { IoPricetag } from 'react-icons/io5';
 
 
@@ -223,7 +222,7 @@ const InvoiceDetail = () => {
               render={(text, _) => <span className='font-semibold'>{(currency(text))}</span>}
             />
           </Table>
-          <p className='text-[18px] font-semibold text-right mt-4 mr-8 text-gray-600'>{`Total ${totalCartItems == 1 ? `${totalCartItems} product` : `${totalCartItems} products`}`}</p>
+          <p className='text-[18px] font-semibold text-right mt-4 mr-8 text-gray-600'>{`Total ${totalCartItems === 1 ? `${totalCartItems} product` : `${totalCartItems} products`}`}</p>
           <Divider style={{borderTop: '1px solid #ccc'}} />
           <div className='flex flex-col items-end justify-start gap-2'>
             <div className='flex flex-row justify-between my-1 ml-4 mr-8'>

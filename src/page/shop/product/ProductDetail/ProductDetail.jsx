@@ -10,7 +10,7 @@ import selledIcon from '../../../../assets/images/selled.png'
 import { useParams } from 'react-router-dom';
 import AuthUser from '../../../../utils/AuthUser';
 import currency from '../../../../utils/currency';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import { BeatLoader } from 'react-spinners'
 import { getDownloadURL, listAll, ref } from 'firebase/storage';
 import { storage } from '../../../../utils/firebase';

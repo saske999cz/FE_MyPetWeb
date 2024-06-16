@@ -1,5 +1,3 @@
-import { addDays, format } from "date-fns"
-
 const initState = {
     avatar: localStorage.getItem('avatar') == null 
         ? '' 

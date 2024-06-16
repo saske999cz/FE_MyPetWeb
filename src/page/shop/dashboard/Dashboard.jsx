@@ -8,9 +8,9 @@ import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/r
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FaClockRotateLeft, FaReplyAll } from "react-icons/fa6";
 import AuthUser from '../../../utils/AuthUser';
-import { format, set } from 'date-fns';
+import { format } from 'date-fns';
 import { toast } from 'react-toastify';
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Label, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Select } from 'antd';
 import { Link } from 'react-router-dom';
 import { getDownloadURL, listAll, ref } from 'firebase/storage';

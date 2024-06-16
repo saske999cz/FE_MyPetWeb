@@ -217,9 +217,6 @@ const InvoiceList = () => {
     navigate(`/dashboard/invoice-view/${record.id}`)
   }
 
-  const handleDownloadInvoice = () => {
-
-  }
   const handleDeleteInvoice = (record) => {
 
   }
@@ -297,6 +294,7 @@ const InvoiceList = () => {
     }
 
     fetchInvoices()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [accessToken, currentPage, pageSize, formattedStartDate, formattedEndDate, invoiceStatusFilter])
 
   if (loading) {
