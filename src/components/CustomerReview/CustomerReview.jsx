@@ -5,9 +5,8 @@ import './CustomerReview.scss'
 import TextEditor from "../TextEditor";
 import { Flex, Rate, Tooltip } from 'antd'
 import { FaEye, FaMedal, FaStar, FaUser } from 'react-icons/fa6'
-import { BiSolidLike, BiSolidMessageRoundedDetail } from 'react-icons/bi'
+import { BiSolidLike } from 'react-icons/bi'
 import { MdOutlineReply, MdReport } from 'react-icons/md'
-import { FaEdit } from 'react-icons/fa'
 import { AiFillLike } from "react-icons/ai";
 import { IoCloseSharp } from 'react-icons/io5'
 import { format } from 'date-fns'

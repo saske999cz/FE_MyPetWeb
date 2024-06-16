@@ -3,7 +3,6 @@ import TextArea from 'antd/es/input/TextArea';
 import React, { useEffect, useState } from 'react'
 import { FaEdit } from 'react-icons/fa';
 import { UploadOutlined } from '@ant-design/icons';
-import { useAuth } from '../../utils/AuthContext';
 import { toast } from 'react-toastify';
 import { uploadBytes, getDownloadURL, ref, deleteObject, listAll } from 'firebase/storage';
 import { storage, firebaseConfig } from '../../utils/firebase';
@@ -22,7 +21,6 @@ import { MdOutlineSecurity } from 'react-icons/md';
 const Profile = () => {
   const { http } = AuthUser()
 
-  const { accessToken } = AuthUser()
   const navigate = useNavigate()
   const dispatch = useDispatch()
 

@@ -1,11 +1,9 @@
 import { Divider, Form, Input } from 'antd'
 import React from 'react'
 import avatar1 from '../../assets/images/avatar1.jpg'
-import AuthUser from '../../utils/AuthUser'
 import { toast } from 'react-toastify'
 
 const Settings = () => {
-  const { http } = AuthUser()
   const [form] = Form.useForm()
 
   const loginFormLayout = {

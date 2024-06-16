@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Checkbox, Form, Input } from "antd";
+import React from "react";
+import { Form, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import logoBlack from "../../assets/images/LogoBlack.png";
 import "./ForgotPassword.scss";
@@ -8,14 +8,14 @@ import { BiArrowBack } from "react-icons/bi";
 const ForgotPassword = () => {
   const navigate = useNavigate()
   const [form] = Form.useForm();
-  const ROLE_ADMIN = "ROLE_ADMIN";
-  const ROLE_SHOP = "ROLE_SHOP";
-  const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
-  const ROLE_AID_CENTER = "ROLE_AID_CENTER";
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
+  // const ROLE_ADMIN = "ROLE_ADMIN";
+  // const ROLE_SHOP = "ROLE_SHOP";
+  // const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
+  // const ROLE_AID_CENTER = "ROLE_AID_CENTER";
+  // const [formData, setFormData] = useState({
+  //   email: "",
+  //   password: "",
+  // });
 
   const forgotPasswordFormLayout = {
     labelCol: {

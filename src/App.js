@@ -12,7 +12,6 @@ import Unauthorized from "./page/unauthorized/Unauthorized";
 import NotFound from "./page/notFound/NotFound";
 import InvoiceList from "./page/shop/invoice/InvoiceList/InvoiceList";
 import InvoiceDetail from "./page/shop/invoice/InvoiceDetail/InvoiceDetail";
-import Settings from "./page/settings/Settings";
 import Login from "./page/login/Login";
 import Register from "./page/register/Register";
 import ForgotPassword from "./page/forgotPassword/ForgotPassword";

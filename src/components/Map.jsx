@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from 'react'
+import React, { memo } from 'react'
 import GoogleMapReact from 'google-map-react';
 import { FaMapMarkerAlt } from 'react-icons/fa';
 
@@ -34,4 +34,4 @@ const Map = ({ address, coords }) => {
   )
 }
 
-export default Map
+export default memo(Map)
