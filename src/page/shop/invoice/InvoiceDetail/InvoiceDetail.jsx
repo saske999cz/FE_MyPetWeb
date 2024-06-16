@@ -12,6 +12,8 @@ import { FaBarsProgress, FaFileInvoiceDollar, FaMedal, FaStar, FaUser } from 're
 import { format } from 'date-fns';
 import Column from 'antd/es/table/Column';
 import loadingImg from '../../../../assets/images/loading.png'
+import paypalLogo from '../../../../assets/images/paypal_logo.png'
+import codLogo from '../../../../assets/images/cod_logo.png'
 import currency from '../../../../utils/currency';
 import getOrderStatus from '../../../../utils/orderStatus';
 import { BiSolidCategoryAlt } from 'react-icons/bi';
@@ -24,7 +26,10 @@ const InvoiceDetail = () => {
   const { accessToken } = useAuth()
 
   const [loading, setLoading] = useState(true)
-  
+
+  const COD_PAYMENT_METHOD = 'COD'
+  const PAYPAL_PAYMENT_METHOD = 'Paypal'
+
   const [invoice, setInvoice] = useState({})
   const [totalCartItems, setTotalCartItems] = useState()
 
@@ -100,7 +105,7 @@ const InvoiceDetail = () => {
   }
 
   return (
-    <div className='flex flex-col w-full h-full items-start justify-start gap-4 bg-white p-6 rounded-md'>
+    <div className='flex flex-col w-full items-start justify-start gap-4 bg-white p-6 rounded-md'>
       <div className='flex flex-col items-center justify-start w-full'>
         <img src={logo} alt="petshop-logo" width={240} height={240} className='pr-6' />
         <div className='flex items-center gap-2 mt-3'>
@@ -219,25 +224,44 @@ const InvoiceDetail = () => {
             />
           </Table>
           <p className='text-[18px] font-semibold text-right mt-4 mr-8 text-gray-600'>{`Total ${totalCartItems == 1 ? `${totalCartItems} product` : `${totalCartItems} products`}`}</p>
-          <Divider />
+          <Divider style={{borderTop: '1px solid #ccc'}} />
           <div className='flex flex-col items-end justify-start gap-2'>
             <div className='flex flex-row justify-between my-1 ml-4 mr-8'>
-              <div className='flex flex-row gap-3 items-center justify-start w-28'>
+              <div className='flex flex-row gap-3 items-center justify-start w-48'>
                 <FaFileInvoiceDollar size={20} />
                 <p className='text-gray-800 text-md font-semibold'>Total</p>
               </div>
               <div className='text-gray-800 text-md font-semibold'>:</div>
-              <div className='ml-8 text-black text-md font-normal w-32'>
+              <div className='ml-8 text-black text-md font-normal w-32 text-end'>
                 <p className='text-[18px] font-semibold'>{currency(invoice?.sub_order.sub_total_prices)}</p>
               </div>
             </div>
             <div className='flex flex-row justify-between my-1 ml-4 mr-8'>
-              <div className='flex flex-row gap-3 items-center justify-start w-28'>
+              <div className='flex flex-row gap-3 items-center justify-start w-48'>
+                <FaFileInvoiceDollar size={20} />
+                <p className='text-gray-800 text-md font-semibold'>Payment Method</p>
+              </div>
+              <div className='text-gray-800 text-md font-semibold'>:</div>
+              <div className='ml-8 text-black text-md font-normal w-32'>
+                <div className='flex items-center gap-2 justify-end'>
+                  {(() => {
+                    if (invoice?.sub_order.payment_method === COD_PAYMENT_METHOD) {
+                      return <img src={codLogo} width={40} height={40} alt="payment-method-logo" />
+                    } else if (invoice?.sub_order.payment_method === PAYPAL_PAYMENT_METHOD) {
+                      return <img src={paypalLogo} width={40} height={40} alt="payment-method-logo" />
+                    }
+                  })()}
+                  <span className='font-normal text-[14px]'>{invoice?.sub_order.payment_method}</span>
+                </div>
+              </div>
+            </div>
+            <div className='flex flex-row justify-between my-1 ml-4 mr-8'>
+              <div className='flex flex-row gap-3 items-center justify-start w-48'>
                 <FaBarsProgress size={20} />
                 <p className='text-gray-800 text-md font-semibold'>Status</p>
               </div>
               <div className='text-gray-800 text-md font-semibold'>:</div>
-              <div className='ml-8 text-gray-600 text-md font-normal w-32'>
+              <div className='ml-8 text-gray-600 text-md font-normal w-32 text-end'>
                 {getOrderStatus(invoice?.sub_order.status)}
               </div>
             </div>

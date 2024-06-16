@@ -4,10 +4,10 @@ import { HiOutlineDotsHorizontal } from "react-icons/hi";
 import { HiOutlineDotsVertical } from "react-icons/hi";
 import { FaClockRotateLeft, FaFileInvoiceDollar } from "react-icons/fa6";
 import { FaBagShopping } from "react-icons/fa6";
-import { Button, DatePicker, Divider, Select, Table, Tooltip } from 'antd';
+import { Button, DatePicker, Divider, Table, Tooltip } from 'antd';
 import { MdCategory } from "react-icons/md";
 import { VscFeedback } from "react-icons/vsc";
-import { FaEye, FaPencilAlt, FaTrash, FaDownload, FaCalendarAlt, FaSearch } from "react-icons/fa";
+import { FaEye, FaTrash, FaCalendarAlt, FaSearch } from "react-icons/fa";
 import { Link, useNavigate } from 'react-router-dom';
 import Search from 'antd/es/input/Search';
 import './InvoiceList.scss'
@@ -18,6 +18,8 @@ import { AiFillProduct } from 'react-icons/ai';
 import dayjs from 'dayjs';
 import Column from 'antd/es/table/Column';
 import loadingImg from '../../../../assets/images/loading.png'
+import paypalLogo from '../../../../assets/images/paypal_logo.png'
+import codLogo from '../../../../assets/images/cod_logo.png'
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import getOrderStatus from '../../../../utils/orderStatus';
 import { getDownloadURL, ref } from 'firebase/storage';
@@ -100,7 +102,10 @@ const InvoiceList = () => {
   const { http } = AuthUser()
   const { accessToken } = useAuth()
   const navigate = useNavigate()
+
   const TOOLTIP_MESSAGE = "Working with other * to search"
+  const COD_PAYMENT_METHOD = 'COD'
+  const PAYPAL_PAYMENT_METHOD = 'Paypal'
 
   const [loading, setLoading] = useState(true);
   const [searchInvoiceInput, setSearchInvoiceInput] = useState('');
@@ -517,6 +522,24 @@ const InvoiceList = () => {
             />
             <Column
               align='left'
+              title='Payment Method'
+              key='payment_method'
+              dataIndex='payment_method'
+              render={(text, _) => (
+                <div className='flex items-center gap-2'>
+                  {(() => {
+                    if (text === COD_PAYMENT_METHOD) {
+                      return <img src={codLogo} width={40} height={40} alt="payment-method-logo" />
+                    } else if (text === PAYPAL_PAYMENT_METHOD) {
+                      return <img src={paypalLogo} width={40} height={40} alt="payment-method-logo" /> 
+                    } 
+                  })()}
+                  <span className='font-normal text-[14px]'>{text}</span>
+                </div>
+              )}
+            />
+            <Column
+              align='left'
               title='Status'
               key='status'
               dataIndex='status'
@@ -537,9 +560,6 @@ const InvoiceList = () => {
                 <div className="flex flex-row items-center justify-evenly space-x-2 w-full my-1">
                   <button onClick={() => handleViewInvoice(record)} className='bg-purple-200 rounded-md p-1.5'>
                     <FaEye size={18} className='text-purple-600' />
-                  </button>
-                  <button onClick={() => handleDownloadInvoice(record)} className='bg-blue-200 rounded-md p-1.5'>
-                    <FaDownload size={18} className='text-blue-600' />
                   </button>
                   <button onClick={() => handleDeleteInvoice(record)} className='bg-red-200 rounded-md p-1.5'>
                     <FaTrash size={18} className='text-red-600' />

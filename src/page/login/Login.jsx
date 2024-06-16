@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { Checkbox, Form, Input } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import logoBlack from "../../assets/images/LogoBlack.png";
@@ -20,10 +20,10 @@ const Login = () => {
   const { http, saveToken } = AuthUser()
   const [form] = Form.useForm();
 
-  const ROLE_ADMIN = "ROLE_ADMIN";
-  const ROLE_SHOP = "ROLE_SHOP";
-  const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
-  const ROLE_AID_CENTER = "ROLE_AID_CENTER";
+  // const ROLE_ADMIN = "ROLE_ADMIN";
+  // const ROLE_SHOP = "ROLE_SHOP";
+  // const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
+  // const ROLE_AID_CENTER = "ROLE_AID_CENTER";
 
   const handleClickLogo = () => {
     navigate('/')
