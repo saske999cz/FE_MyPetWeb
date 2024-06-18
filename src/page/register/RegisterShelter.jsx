@@ -1,28 +1,13 @@
-<<<<<<< Updated upstream
-import React from "react";
-import { Form, Input } from "antd";
-=======
 import React, { useRef, useState, useEffect, useMemo } from "react";
 import { Form, Input, Steps, Select } from "antd";
->>>>>>> Stashed changes
 import { Link, useNavigate } from "react-router-dom";
 import logoBlack from "../../assets/images/LogoBlack.png";
 import "./Register.scss";
 import PlaceAutocompleteInput from "../../components/PlaceAutoCompleteInput";
 
-const Register = () => {
+const RegisterShelter = () => {
   const navigate = useNavigate();
   const [form] = Form.useForm();
-<<<<<<< Updated upstream
-  // const ROLE_ADMIN = "ROLE_ADMIN";
-  // const ROLE_SHOP = "ROLE_SHOP";
-  // const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
-  // const ROLE_AID_CENTER = "ROLE_AID_CENTER";
-  // const [formData, setFormData] = useState({
-  //   email: "",
-  //   password: "",
-  // });
-=======
   const ROLE_ADMIN = "ROLE_ADMIN";
   const ROLE_SHOP = "ROLE_SHOP";
   const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
@@ -40,7 +25,6 @@ const Register = () => {
     established_year: "",
   });
   const [currentStep, setCurrentStep] = useState(0);
->>>>>>> Stashed changes
 
   const registerFormLayout = {
     labelCol: {
@@ -117,7 +101,7 @@ const Register = () => {
         <div className="w-full h-[90%] flex flex-row items-center justify-center">
           <div className="w-[80%] h-full flex flex-col items-start justify-start">
             <h1 className="w-full text-[32px] font-semibold flex flex-row items-center justify-center px-4 mb-4 mt-[30px]">
-              Sign Up For Shop
+              Sign Up For Shelter
             </h1>
             <Steps
               current={currentStep}
@@ -129,7 +113,7 @@ const Register = () => {
                   title: "Contact Info",
                 },
                 {
-                  title: "Shop Info",
+                  title: "Shelter Info",
                 },
               ]}
               className="mt-[30px] mb-[40px]"
@@ -536,4 +520,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterShelter;

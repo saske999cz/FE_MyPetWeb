@@ -1,0 +1,27 @@
+@keyframes slideInFromLeft {
+    0% {
+      transform: translateX(-100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes apear{
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+  
+  .slide-in-from-left {
+    animation: slideInFromLeft 1.25s forwards;
+  }
+
+  .show-up{
+    animation: apear 2s forwards;
+  }
