@@ -21,11 +21,11 @@ import loadingImg from '../../../../assets/images/loading.png'
 import paypalLogo from '../../../../assets/images/paypal_logo.png'
 import codLogo from '../../../../assets/images/cod_logo.png'
 import { LazyLoadImage } from 'react-lazy-load-image-component';
-import getOrderStatus from '../../../../utils/orderStatus';
 import { getDownloadURL, ref } from 'firebase/storage';
 import { storage } from '../../../../utils/firebase';
 import { format } from 'date-fns';
 import { toast } from 'react-toastify';
+import { getOrderStatus } from '../../../../utils/statusLabel';
 
 function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', isLastCard = false }) {
   return (

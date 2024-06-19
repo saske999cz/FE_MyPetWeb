@@ -15,8 +15,8 @@ import loadingImg from '../../../../assets/images/loading.png'
 import paypalLogo from '../../../../assets/images/paypal_logo.png'
 import codLogo from '../../../../assets/images/cod_logo.png'
 import currency from '../../../../utils/currency';
-import getOrderStatus from '../../../../utils/orderStatus';
 import { IoPricetag } from 'react-icons/io5';
+import { getOrderStatus } from '../../../../utils/statusLabel';
 
 
 const InvoiceDetail = () => {
