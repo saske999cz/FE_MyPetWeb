@@ -1,104 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import classNames from 'classnames';
 import animalShelterLogo from '../../../assets/images/animal_shelter_logo.png'
 import medicalCenterLogo from '../../../assets/images/medical_center_logo.png'
 import shopLogo from '../../../assets/images/shop_logo.png'
 import customerLogo from '../../../assets/images/customer_logo.jpg'
-import { Menu, MenuButton, MenuItem, MenuItems, Transition } from '@headlessui/react';
-import { HiOutlineTrendingDown, HiOutlineTrendingUp } from 'react-icons/hi';
-import { Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { Select } from 'antd';
 import AuthUser from '../../../utils/AuthUser';
 import './AdminDashboard.scss'
 import { BeatLoader } from 'react-spinners';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { getAccountTypeStatus } from '../../../utils/statusLabel';
 import { FaCheck, FaEye } from 'react-icons/fa6';
 import { FaWindowClose } from 'react-icons/fa';
+import Swal from 'sweetalert2'
 const { Option } = Select;
-
-// function BoxWrapper({
-//   children,
-//   className,
-//   menuPosition = 'bottom-0 right-4',
-//   isLastCard = false,
-//   banner,
-//   handleDateChange,
-// }) {
-//   return (
-//     <div className={`relative rounded-lg flex-1 flex items-center justify-between shadow-lg ${className}`}>
-//       {children}
-//       <Menu as="div" className={`absolute ${menuPosition}`}>
-//         <MenuButton className="inline-flex justify-center w-10 h-10 text-gray-500 hover:text-gray-700">
-//           {isLastCard ? (
-//             <></>
-//           ) : (
-//             <HiOutlineDotsVertical className="w-6 h-6" />
-//           )}
-//         </MenuButton>
-//         <Transition
-//           as={Fragment}
-//           enter="transition ease-out duration-100"
-//           enterFrom="transform opacity-0 scale-95"
-//           enterTo="transform opacity-100 scale-100"
-//           leave="transition ease-in duration-75"
-//           leaveFrom="transform opacity-100 scale-100"
-//           leaveTo="transform opacity-0 scale-95"
-//         >
-//           <MenuItems className="absolute right-0 w-40 -mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-//             <div className="py-1">
-//               <MenuItem>
-//                 {({ focus }) => (
-//                   <button
-//                     className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
-//                     onClick={handleDateChange(banner, FILTER_LAST_DAY)}
-//                   >
-//                     <FaClockRotateLeft />
-//                     Last day
-//                   </button>
-//                 )}
-//               </MenuItem>
-//               <MenuItem>
-//                 {({ focus }) => (
-//                   <button
-//                     className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
-//                     onClick={handleDateChange(banner, FILTER_LAST_WEEK)}
-//                   >
-//                     <FaClockRotateLeft />
-//                     Last week
-//                   </button>
-//                 )}
-//               </MenuItem>
-//               <MenuItem>
-//                 {({ focus }) => (
-//                   <button
-//                     className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
-//                     onClick={handleDateChange(banner, FILTER_LAST_MONTH)}
-//                   >
-//                     <FaClockRotateLeft />
-//                     Last month
-//                   </button>
-//                 )}
-//               </MenuItem>
-//               <MenuItem>
-//                 {({ focus }) => (
-//                   <button
-//                     className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
-//                     onClick={handleDateChange(banner, FILTER_LAST_YEAR)}
-//                   >
-//                     <FaClockRotateLeft />
-//                     Last year
-//                   </button>
-//                 )}
-//               </MenuItem>
-//             </div>
-//           </MenuItems>
-//         </Transition>
-//       </Menu>
-//     </div>
-//   );
-// }
 
 const RADIAN = Math.PI / 180
 const ACCOUNT_TYPE_COLORS = ['#8684d8', '#d70f7e', '#ff8042', '#0ba5e9']
@@ -118,6 +34,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
 
 const AdminDashboard = () => {
   const { http } = AuthUser()
+  const navigate = useNavigate()
 
   const ROLE_SHOP = 'Role Shop'
   const ROLE_MEDICAL_CENTER = 'Role Medical Center'
@@ -135,8 +52,6 @@ const AdminDashboard = () => {
   const [customerBar, setCustomerBar] = useState([])
   const [accountTypePie, setAccountTypePie] = useState([])
   const [accountStatusPie, setAccountStatusPie] = useState([])
-  const [accountApprovedRadar, setAccountApprovedRadar] = useState([])
-  const [accountApprovedRadarTotal, setAccountApprovedRadarTotal] = useState()
   const [recentAccountWaitingApproved, setRecentAccountWaitingApproved] = useState([])
 
   const currentYear = new Date().getFullYear();
@@ -165,16 +80,88 @@ const AdminDashboard = () => {
     setSelectedCustomerYears(value)
   };
 
-  const handleViewAccount = () => {
+  const handleApprovedAccount = (record) => {
+    console.log(record)
+    Swal.fire({
+      title: 'Approve this account?',
+      text: 'You are about to make this account active',
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#3fc2ed',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let url = ''
+        if (record.role_name === 'ROLE_SHOP') {
+          url = `admin/shops/approved/${record.id}`
+        } else if (record.role_name === 'ROLE_MEDICAL_CENTER') {
+          url = `admin/shops/approved/${record.id}`
+        } else if (record.role_name === 'ROLE_AID_CENTER') {
+          url = `admin/shops/approved/${record.id}`
+        }
 
+        http.patch(url)
+          .then((resolve) => {
+            Swal.fire({
+              icon: "success",
+              title: resolve.data.message,
+              text: `Request will be sent to the user`,
+            }).then(() => {
+              navigate(0)
+            })
+          })
+          .catch((error) => {
+            console.log(error)
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Something went wrong. Try again",
+            })
+          })
+      }
+    });
   }
 
-  const handleApprovedAccount = () => {
+  const handleDeleteAccount = (record) => {
+    Swal.fire({
+      title: 'Block this account?',
+      text: 'You are about to make this account inactive',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'OK',
+      confirmButtonColor: '#d33',
+      cancelButtonText: 'Cancel',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        let url = ''
+        if (record.role_name === 'ROLE_SHOP') {
+          url = `admin/shops/blocked/${record.id}`
+        } else if (record.role_name === 'ROLE_MEDICAL_CENTER') {
+          url = `admin/shops/blocked/${record.id}`
+        } else if (record.role_name === 'ROLE_AID_CENTER') {
+          url = `admin/shops/blocked/${record.id}`
+        }
 
-  }
-
-  const handleDeleteAccount = () => {
-
+        http.patch(url)
+          .then((resolve) => {
+            Swal.fire({
+              icon: "success",
+              title: resolve.data.message,
+            }).then(() => {
+              navigate(0)
+            })
+          })
+          .catch((error) => {
+            console.log(error)
+            Swal.fire({
+              icon: "error",
+              title: "Oops...",
+              text: "Something went wrong. Try again",
+            })
+          })
+      }
+    });
   }
 
   useEffect(() => {
@@ -276,52 +263,19 @@ const AdminDashboard = () => {
       }
     }
 
-    fetchAccountTypePie()
-    fetchAccountStatusPie()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    const fetchAccountApprovedRadar = async () => {
-      try {
-        const response = await http.get('/admin/radar/account-approved')
-        const data = response.data.data
-        setAccountApprovedRadar(data)
-        setAccountApprovedRadarTotal(response.data.total)
-        setLoading(false)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
     const fetchRecentWaitingApprovedAccount = async () => {
       try {
         const response = await http.get('/admin/recent-waiting-approved-account')
         setRecentAccountWaitingApproved(response.data.data)
-      } catch (error) {
-        console.log(error)
-      }
-    }
-
-    fetchAccountApprovedRadar()
-    fetchRecentWaitingApprovedAccount()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
-
-  useEffect(() => {
-    const fetchAccountApprovedRadar = async () => {
-      try {
-        const response = await http.get('/admin/radar/account-approved')
-        const data = response.data.data
-        setAccountApprovedRadar(data)
-        setAccountApprovedRadarTotal(response.data.total)
         setLoading(false)
       } catch (error) {
         console.log(error)
       }
     }
 
-    fetchAccountApprovedRadar()
+    fetchAccountTypePie()
+    fetchAccountStatusPie()
+    fetchRecentWaitingApprovedAccount()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -597,13 +551,10 @@ const AdminDashboard = () => {
                     <td>{format(new Date(account.created_at), 'dd MMM yyyy')}</td>
                     <td>{getAccountTypeStatus(account.role_name)}</td>
                     <td className='flex items-center gap-2'>
-                      <button onClick={() => handleViewAccount()} className='bg-purple-200 rounded-md p-1.5'>
-                        <FaEye size={18} className='text-purple-600' />
-                      </button>
-                      <button onClick={() => handleApprovedAccount()} className='bg-green-200 rounded-md p-1.5'>
+                      <button onClick={() => handleApprovedAccount(account)} className='bg-green-200 rounded-md p-1.5'>
                         <FaCheck size={18} className='text-green-600' />
                       </button>
-                      <button onClick={() => handleDeleteAccount()} className='bg-red-200 rounded-md p-1.5'>
+                      <button onClick={() => handleDeleteAccount(account)} className='bg-red-200 rounded-md p-1.5'>
                         <FaWindowClose size={18} className='text-red-600' />
                       </button>
                     </td>

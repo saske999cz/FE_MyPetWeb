@@ -29,6 +29,7 @@ import AdminMedicalCenterList from "./page/admin/medicalCenter/MedicalCenterList
 import AdminAidCenterList from "./page/admin/aidCenter/AidCenterList/AdminAidCenterList";
 import HelpSupport from "./page/HelpSupport";
 import Settings from "./page/settings/Settings";
+import AdminShopDetail from "./page/admin/shop/ShopDetail/AdminShopDetail";
 
 function App() {
   const ROLE_ADMIN = "ROLE_ADMIN";
@@ -143,6 +144,14 @@ function App() {
               element={
                 <AuthRoute roles={[ROLE_ADMIN]}>
                   <AdminShopList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="shop-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminShopDetail />
                 </AuthRoute>
               }
             />

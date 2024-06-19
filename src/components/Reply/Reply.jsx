@@ -8,8 +8,10 @@ import './Reply.scss'
 import Swal from 'sweetalert2';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../utils/AuthContext';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../utils/firebase';
 
-const Reply = ({ ratingId, replyDate, replyContent }) => {
+const Reply = ({ isAdmin, shopAvatar, ratingId, replyDate, replyContent }) => {
   const { avatar, username, http } = AuthUser();
   const { accessToken } = useAuth()
   const navigate = useNavigate()
@@ -86,14 +88,14 @@ const Reply = ({ ratingId, replyDate, replyContent }) => {
           setProcessing(false);
 
           if (resolve.status === 200) {
-              Swal.fire({
-                title: 'Done!',
-                text: 'Successfully updated reply',
-                icon: 'success',
-              }).then(() => {
-                navigate(0)
-              })
-            }
+            Swal.fire({
+              title: 'Done!',
+              text: 'Successfully updated reply',
+              icon: 'success',
+            }).then(() => {
+              navigate(0)
+            })
+          }
         })
           .catch((error) => {
             console.log(error)
@@ -161,7 +163,11 @@ const Reply = ({ ratingId, replyDate, replyContent }) => {
       <div className='flex flex-row gap-4 items-center justify-start mb-2'>
         {/* Wrapper Top Left */}
         <div className='flex flex-row justify-center items-center '>
-          <img src={avatar} alt="avatar" className='w-16 h-16 rounded-full border-1 object-cover' />
+          {isAdmin ? (
+            <img src={shopAvatar} alt="avatar" className='w-16 h-16 rounded-full border-1 object-cover' />
+          ) : (
+            <img src={avatar} alt="avatar" className='w-16 h-16 rounded-full border-1 object-cover' />
+          )}
         </div>
         {/* Wrapper Top Right */}
         <div className='flex flex-col items-start gap-1'>
@@ -212,22 +218,24 @@ const Reply = ({ ratingId, replyDate, replyContent }) => {
           <div className='text-justify mx-1' dangerouslySetInnerHTML={{ __html: replyContent }} />
         )}
       </div>
-      <div className='flex flex-row mt-2 items-center justify-between'>
-        <button
-          onClick={toggleEditReply}
-          className='flex flex-row items-center gap-2 p-2 bg-yellow-500 rounded-md'
-        >
-          <FaPencil size={18} style={{ color: 'white' }} />
-          <p className='text-white text-sm font-semibold'>{isOpenReplyEditor ? 'Close Edit Reply' : 'Edit Reply'}</p>
-        </button>
-        <button
-          onClick={handleDeleteReply}
-          className='flex flex-row items-center gap-2 p-2 bg-red-500 rounded-md'
-        >
-          <FaTrash size={18} style={{ color: 'white' }} />
-          <p className='text-white text-sm font-semibold'>Delete Reply</p>
-        </button>
-      </div>
+      {!isAdmin && (
+        <div className='flex flex-row mt-2 items-center justify-between'>
+          <button
+            onClick={toggleEditReply}
+            className='flex flex-row items-center gap-2 p-2 bg-yellow-500 rounded-md'
+          >
+            <FaPencil size={18} style={{ color: 'white' }} />
+            <p className='text-white text-sm font-semibold'>{isOpenReplyEditor ? 'Close Edit Reply' : 'Edit Reply'}</p>
+          </button>
+          <button
+            onClick={handleDeleteReply}
+            className='flex flex-row items-center gap-2 p-2 bg-red-500 rounded-md'
+          >
+            <FaTrash size={18} style={{ color: 'white' }} />
+            <p className='text-white text-sm font-semibold'>Delete Reply</p>
+          </button>
+        </div>
+      )}
     </div>
   )
 }
