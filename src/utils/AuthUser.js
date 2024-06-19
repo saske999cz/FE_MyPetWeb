@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "./AuthContext";
 
 export default function AuthUser() {
-  const { accessToken, updateToken, clearToken } = useAuth();
+  const { accessToken, role, updateToken, updateRole, clearToken } = useAuth();
 
   const hasAccessToken = () => {
     const accessTokenString = localStorage.getItem('access_token');
@@ -43,28 +43,22 @@ export default function AuthUser() {
     return avatar;
   });
 
-  const [role, setRole] = useState(() => {
-    const roleString = localStorage.getItem('role');
-    const role = JSON.parse(roleString);
-    return role;
-  });
-
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const saveToken = (accessToken, user) => {
     updateToken(accessToken); // Sử dụng updateToken từ context
+    updateRole(user.role_name)
+
     localStorage.setItem('user_id', JSON.stringify(user.id))
     localStorage.setItem('username', JSON.stringify(user.username))
     localStorage.setItem('email', JSON.stringify(user.email))
     localStorage.setItem('avatar', JSON.stringify(user.avatar))
-    localStorage.setItem('role', JSON.stringify(user.role_name))
 
     setUserId(user.id)
     setUsername(user.username)
     setEmail(user.email)
     setAvatar(user.avatar)
-    setRole(user.role_name)
   }
 
   const logout = () => {
@@ -73,7 +67,8 @@ export default function AuthUser() {
     localStorage.removeItem('username');
     localStorage.removeItem('email');
     localStorage.removeItem('avatar');
-    localStorage.removeItem('role');
+    localStorage.removeItem('shopAddress')
+    localStorage.removeItem('shopCoords')
 
     dispatch(removeAvatar(''));
     navigate('/login')
