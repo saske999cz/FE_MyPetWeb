@@ -1,37 +1,25 @@
-<<<<<<< Updated upstream
-import React from "react";
-import { Form, Input } from "antd";
-=======
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import { Form, Input, Steps, Select } from "antd";
->>>>>>> Stashed changes
 import { Link, useNavigate } from "react-router-dom";
 import logoBlack from "../../assets/images/LogoBlack.png";
 import "./Register.scss";
+import AuthUser from '../../utils/AuthUser';
 import PlaceAutocompleteInput from "../../components/PlaceAutoCompleteInput";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 
-const Register = () => {
+const RegisterShop = () => {
+  const { http } = AuthUser();
   const navigate = useNavigate();
+
   const [form] = Form.useForm();
-<<<<<<< Updated upstream
-  // const ROLE_ADMIN = "ROLE_ADMIN";
-  // const ROLE_SHOP = "ROLE_SHOP";
-  // const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
-  // const ROLE_AID_CENTER = "ROLE_AID_CENTER";
-  // const [formData, setFormData] = useState({
-  //   email: "",
-  //   password: "",
-  // });
-=======
-  const ROLE_ADMIN = "ROLE_ADMIN";
-  const ROLE_SHOP = "ROLE_SHOP";
-  const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
-  const ROLE_AID_CENTER = "ROLE_AID_CENTER";
+
   const [shopData, setShopData] = useState({
+    username: "",
     email: "",
     password: "",
     confirm_password: "",
-    phone: null,
+    phone: "",
     website: "",
     fanpage: "",
     name: "",
@@ -40,7 +28,6 @@ const Register = () => {
     established_year: "",
   });
   const [currentStep, setCurrentStep] = useState(0);
->>>>>>> Stashed changes
 
   const registerFormLayout = {
     labelCol: {
@@ -55,30 +42,92 @@ const Register = () => {
     navigate("/");
   };
 
-  const onFinish = (value) => {
+  const formatTime = (timeObj) => {
+    const hour = parseInt(timeObj.time, 10);
+    const formattedHour = hour < 10 ? `0${hour}` : hour.toString();
+    return `${formattedHour}:00 ${timeObj.ampm}`;
+  };
+
+  const onFinish = async (values) => {
     if (currentStep === 0) {
       setShopData({
         ...shopData,
-        email: value.email,
-        password: value.password,
-        confirm_password: value.confirmPassword,
+        username: values.username,
+        email: values.email,
+        password: values.password,
+        confirm_password: values.confirmPassword,
       });
       setCurrentStep(1);
     } else if (currentStep === 1) {
       setShopData({
         ...shopData,
-        phone: value.phone,
-        website: value.website,
-        fanpage: value.fanpage,
+        phone: values.phone,
+        website: values.website,
+        fanpage: values.fanpage,
       });
       setCurrentStep(2);
     } else {
       setShopData({
         ...shopData,
-        name: value.name,
-        work_time: value.work_time,
+        name: values.name,
+        work_time: values.work_time,
+        address: values.address,
+        establish_year: values.establish_year,
       });
-      console.log(shopData.address);
+
+      try {
+        Swal.fire({
+          title: 'Processing...',
+          text: 'Please wait',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          icon: 'info',
+          willOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        const openingTime = formatTime(values.work_time.opening);
+        const closingTime = formatTime(values.work_time.closing);
+  
+        const formattedWorkTime = `${openingTime} : ${closingTime}`
+  
+        const form = new FormData();
+        form.append("username", shopData.username);
+        form.append("email", shopData.email);
+        form.append("password", shopData.password);
+        form.append("confirm_password", shopData.confirm_password);
+        form.append("phone", shopData.phone);
+        form.append("name", values.name);
+        form.append("address", values.address);
+        form.append("work_time", formattedWorkTime);
+        form.append("establish_year", values.establish_year);
+
+        if (shopData.website) {
+          form.append("website", shopData.website);
+        }
+
+        if (shopData.fanpage) {
+          form.append("fanpage", shopData.fanpage);
+        }
+
+        await http.post("/auth/register-shop", form);
+
+        Swal.fire({
+          title: 'The request has been sent',
+          text: 'Please wait for the admin team to approve your account',
+          icon: 'success',
+        }).then(() => {
+          navigate(0);
+        })
+      } catch(error) {
+        console.log(error);
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        });
+      }
     }
   };
 
@@ -101,7 +150,19 @@ const Register = () => {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const onFinishFailed = () => {};
+  const onFinishFailed = async (errorInfo) => {
+    console.log('Failed:', errorInfo);
+    toast.error('Please input all fields', {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    })
+  };
 
   return (
     <div className="register_container w-screen h-screen bg-orange-300 flex flex-row items-center justify-center">
@@ -141,7 +202,7 @@ const Register = () => {
                   className="w-full"
                   form={form}
                   layout="vertical"
-                  name="login_form"
+                  name="register_form"
                   labelAlign="left"
                   labelWrap="true"
                   size="large"
@@ -246,7 +307,7 @@ const Register = () => {
                   className="w-full"
                   form={form}
                   layout="vertical"
-                  name="login_form"
+                  name="register_form"
                   labelAlign="left"
                   labelWrap="true"
                   size="large"
@@ -273,13 +334,6 @@ const Register = () => {
                   <Form.Item
                     label="Website"
                     name="website"
-                    rules={[
-                      {
-                        required: false,
-                        message: "Email is required!",
-                      },
-                    ]}
-                    hasFeedback
                   >
                     <Input
                       placeholder="www.google.com"
@@ -289,14 +343,6 @@ const Register = () => {
                   <Form.Item
                     label="Fanpage"
                     name="fanpage"
-                    className=""
-                    rules={[
-                      {
-                        required: false,
-                        message: "Password is required!",
-                      },
-                    ]}
-                    hasFeedback
                   >
                     <Input
                       placeholder="www.facebook.com"
@@ -329,7 +375,7 @@ const Register = () => {
                   className="w-full"
                   form={form}
                   layout="vertical"
-                  name="login_form"
+                  name="register_form"
                   labelAlign="left"
                   labelWrap="true"
                   size="large"
@@ -486,7 +532,7 @@ const Register = () => {
                   </Form.Item>
                   <Form.Item
                     label="Established Year"
-                    name="established_year"
+                    name="establish_year"
                     rules={[
                       {
                         required: true,
@@ -495,7 +541,7 @@ const Register = () => {
                     ]}
                     hasFeedback
                   >
-                    <Input placeholder="2021" autoComplete="established_year" />
+                    <Input placeholder="2024" autoComplete="establish_year" />
                   </Form.Item>
 
                   <div className="w-full h-fit flex flex-row items-center justify-center">
@@ -536,4 +582,4 @@ const Register = () => {
   );
 };
 
-export default Register;
+export default RegisterShop;

@@ -7,6 +7,16 @@ const routesConfig = {
     title: 'Dashboard',
     breadcrumb: 'Dashboard',
   },
+  '/dashboard/support': {
+    title: 'Help & Support',
+    breadcrumb: 'Help & Support',
+  },
+  '/dashboard/settings': {
+    title: 'Settings',
+    breadcrumb: 'Settings',
+  },
+
+  // --------------------------     Shop Routes     --------------------------
   '/dashboard/product-list': {
     title: 'Product List',
     breadcrumb: 'Product List',
@@ -38,6 +48,20 @@ const routesConfig = {
   '/dashboard/profile': {
     title: 'Profile',
     breadcrumb: 'Profile',
+  },
+
+  // --------------------------     Shop Routes     --------------------------
+  '/dashboard/shop-list': {
+    title: ' Shop List',
+    breadcrumb: 'Shop List',
+  },
+  '/dashboard/medical-center-list': {
+    title: ' Medical Center List',
+    breadcrumb: 'Medical Center List',
+  },
+  '/dashboard/aid-center-list': {
+    title: ' Aid Center List',
+    breadcrumb: 'Aid Center List',
   },
 };
 

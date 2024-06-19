@@ -9,6 +9,7 @@ import { avatarSelector } from '../redux/selectors';
 import { storage } from '../utils/firebase'
 import AuthUser from '../utils/AuthUser'
 import { addAvatar } from '../redux/actions'
+import { useAuth } from '../utils/AuthContext'
 
 const Layout = () => {
 	const [title, setTitle] = useState('Dashboard');

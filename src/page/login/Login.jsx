@@ -5,6 +5,7 @@ import logoBlack from "../../assets/images/LogoBlack.png";
 import "./Login.scss";
 import { toast } from "react-toastify";
 import AuthUser from "../../utils/AuthUser";
+import Swal from "sweetalert2";
 
 const Login = () => {
   const loginFormLayout = {
@@ -15,36 +16,31 @@ const Login = () => {
       span: 24
     },
   };
-  
+
   const navigate = useNavigate()
   const { http, saveToken } = AuthUser()
   const [form] = Form.useForm();
-
-  // const ROLE_ADMIN = "ROLE_ADMIN";
-  // const ROLE_SHOP = "ROLE_SHOP";
-  // const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
-  // const ROLE_AID_CENTER = "ROLE_AID_CENTER";
 
   const handleClickLogo = () => {
     navigate('/')
   }
 
-  const onFinish = (values) => {
-    const formData = new FormData()
-    formData.append('email',  values.email)
-    formData.append('password', values.password);
+  const onFinish = async (values) => {
+    try {
+      const formData = new FormData()
+      formData.append('email', values.email)
+      formData.append('password', values.password);
 
-    http.post('/auth/login', formData)
-      .then((resolve) => {
-        console.log(resolve)
+      const response = await http.post('/auth/login', formData)
+      console.log(response)
 
-        const accessToken = resolve.data.access_token
-        const user = resolve.data.user
+      const accessToken = response.data.access_token
+        const user = response.data.user
         saveToken(accessToken, user)
 
         navigate('/dashboard')
-        
-        toast.success(`Welcome back ${resolve.data.user.username}`, {
+
+        toast.success(`Welcome back ${response.data.user.username}`, {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -54,23 +50,17 @@ const Login = () => {
           progress: undefined,
           theme: "colored",
         })
+    } catch (error) {
+      console.log(error)
+      Swal.fire({
+        title: 'Failed',
+        text: error.response.data.error,
+        icon: 'error',
       })
-      .catch((reject) => {
-        console.log(reject);
-        toast.error('Email or password is incorrect..', {
-          position: "top-right",
-          autoClose: 3000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        })
-      })
+    }
   }
 
-  const onFinishFailed = (errorInfo) => {
+  const onFinishFailed = async (errorInfo) => {
     console.log('Failed:', errorInfo);
     toast.error('Please input all fields', {
       position: "top-right",
@@ -103,8 +93,8 @@ const Login = () => {
             <div className="input_container w-full h-fit flex flex-col items-start justify-center px-4">
               <Form
                 {...loginFormLayout}
-                className='w-full'  
-                form={form} 
+                className='w-full'
+                form={form}
                 layout='vertical'
                 name='login_form'
                 labelAlign='left'
@@ -165,7 +155,7 @@ const Login = () => {
                   >
                     <Checkbox className="w-40">Remember me</Checkbox>
                   </Form.Item>
-                  <Link to="/forgot-password" style={{color: '#f59e0b'}}>
+                  <Link to="/forgot-password" style={{ color: '#f59e0b' }}>
                     Forgot Password
                   </Link>
                 </div>
@@ -173,12 +163,6 @@ const Login = () => {
                   <p className="text-white text-[16px] font-semibold">Login</p>
                 </button>
               </Form>
-              <p className="text-sm text-gray-500 mt-4 w-full flex flex-row items-center justify-center">
-                Don't have an account? &nbsp;
-                <Link to="/register" className="text-amber-500 cursor-pointer" style={{color: '#f59e0b'}}>
-                  Register Here
-                </Link>
-              </p>
             </div>
           </div>
         </div>
