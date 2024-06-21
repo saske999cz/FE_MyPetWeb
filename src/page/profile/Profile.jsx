@@ -37,7 +37,6 @@ const Profile = () => {
   const [changePasswordMode, setChangePasswordMode] = useState(false);
 
   const [loading, setLoading] = useState(true);
-  const [loadMap, setLoadMap] = useState(false);
 
   const [form] = Form.useForm();
   const [locationForm] = Form.useForm();

@@ -50,18 +50,33 @@ const routesConfig = {
     breadcrumb: 'Profile',
   },
 
-  // --------------------------     Shop Routes     --------------------------
+  // --------------------------     Admin Routes     --------------------------
   '/dashboard/shop-list': {
     title: ' Shop List',
     breadcrumb: 'Shop List',
+  },
+  '/dashboard/shop-view': {
+    title: 'Shop List',
+    breadcrumb: 'Shop List',
+    parent: '/dashboard/shop-list',
   },
   '/dashboard/medical-center-list': {
     title: ' Medical Center List',
     breadcrumb: 'Medical Center List',
   },
+  '/dashboard/medical-center-view': {
+    title: 'Medical Center View',
+    breadcrumb: 'Medical Center View',
+    parent: '/dashboard/medical-center-list',
+  },
   '/dashboard/aid-center-list': {
     title: ' Aid Center List',
     breadcrumb: 'Aid Center List',
+  },
+  '/dashboard/aid-center-view': {
+    title: 'Aid Center View',
+    breadcrumb: 'Aid Center View',
+    parent: '/dashboard/aid-center-list',
   },
 };
 

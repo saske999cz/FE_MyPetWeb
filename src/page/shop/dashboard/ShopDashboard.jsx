@@ -17,8 +17,8 @@ import { getDownloadURL, listAll, ref } from 'firebase/storage';
 import { storage } from '../../../utils/firebase';
 import { BeatLoader } from 'react-spinners';
 import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
-import getOrderStatus from '../../../utils/orderStatus';
 import './ShopDashboard.scss';
+import { getOrderStatus } from '../../../utils/statusLabel';
 const { Option } = Select;
 
 function BoxWrapper({
@@ -768,8 +768,8 @@ const ShopDashboard = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-row gap-4 w-full dashboard-container">
-        <div className="bg-white px-4 pt-3 pb-4 rounded-sm border border-gray-200 flex-1">
+      <div className="flex flex-row gap-4 w-full">
+        <div className="bg-white px-4 pt-3 pb-4 rounded-sm border border-gray-200 flex-1 dashboard-container">
           <strong className="text-gray-700 font-medium">Recent Orders</strong>
           <div className="border-x border-gray-200 rounded-sm mt-3">
             <table className="w-full text-gray-700">

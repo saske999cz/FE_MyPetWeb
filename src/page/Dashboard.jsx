@@ -13,10 +13,6 @@ const Dashboard = () => {
   const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
   const ROLE_AID_CENTER = "ROLE_AID_CENTER";
 
-  console.log(role)
-
-  // const role = localStorage.getItem("role")?.replace(/"/g, "");
-
   switch(role) {
     case ROLE_ADMIN:
       return <AdminDashboard />;

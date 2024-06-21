@@ -17,8 +17,10 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import Swal from 'sweetalert2';
 import { useAuth } from '../../utils/AuthContext';
+import { getDownloadURL, ref } from 'firebase/storage';
+import { storage } from '../../utils/firebase';
 
-const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
+const CustomerReview = ({ isAdmin, rating, ratingIndex, toggleReportModal }) => {
   const { username, avatar, http } = AuthUser()
   const { accessToken } = useAuth();
 
@@ -46,6 +48,8 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
   const [reply, setReply] = useState('')
   const [replyError, setRelpyError] = useState(false);
 
+  const [avatarUrl, setAvatarUrl] = useState('')
+
   const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
 
   // --------------------------     Handle Reply     --------------------------
@@ -61,7 +65,7 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
             setLikeStatus(true)
 
             setProcessing(false);
-            
+
             toast.success(`Liked rating of ${rating.customer_username}`, {
               position: "top-right",
               autoClose: 3000,
@@ -205,6 +209,17 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
     setProcessing(false);
   }, [accessToken]);
 
+  useEffect(() => {
+    const fetchAvatar = async () => {
+      if (!rating.shop_avatar) return
+      const avatarRef = ref(storage, rating.shop_avatar)
+      const avatarUrl = await getDownloadURL(avatarRef)
+      setAvatarUrl(avatarUrl)
+    }
+
+    fetchAvatar()
+  }, [])
+
   return (
     // Comment Container
     <div className='flex flex-col justify-start items-start w-full'>
@@ -260,12 +275,22 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
               </Tooltip>
             </div>
             <div className='flex flex-row gap-3'>
-              {rating.reply === null && (
-                <button onClick={handleOpenOutsideReply} className='flex flex-row items-center gap-2 p-2 bg-blue-600 transition duration-300 rounded-md hover:opacity-80'>
-                  <MdOutlineReply size={24} style={{ color: 'white' }} />
-                  <p className='font-bold text-white'>{replyState !== REPLY_WRAPPER_OPEN ? 'REPLY' : 'CLOSE REPLY'}</p>
-                </button>
-              )}
+              {(() => {
+                if (isAdmin) {
+                  return (
+                    <></>
+                  )
+                } else {
+                  if (rating.reply === null) {
+                    return (
+                      <button onClick={handleOpenOutsideReply} className='flex flex-row items-center gap-2 p-2 bg-blue-600 transition duration-300 rounded-md hover:opacity-80'>
+                        <MdOutlineReply size={24} style={{ color: 'white' }} />
+                        <p className='font-bold text-white'>{replyState !== REPLY_WRAPPER_OPEN ? 'REPLY' : 'CLOSE REPLY'}</p>
+                      </button>
+                    )
+                  }
+                }
+              })()}
               <Tooltip title="Like">
                 <div className='flex flex-row items-center gap-2 p-2 bg-green-500 rounded-md'>
                   <BiSolidLike size={24} style={{ color: 'white' }} />
@@ -297,7 +322,9 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
                 {nestedReplyState !== NESTED_REPLY_CLOSED && (
                   <div className={`bg-neutral-200 w-full mb-5 border-r-4 gap-2 ${nestedReplyState === NESTED_REPLY_OPEN ? 'animate-openReply' : ''} ${nestedReplyState === NESTED_REPLY_CLOSING ? 'animate-closeReply' : ''}`}>
                     <Reply
+                      isAdmin={isAdmin}
                       ratingId={rating.rating_id}
+                      shopAvatar={avatarUrl}
                       replyDate={rating.reply_date}
                       replyContent={rating.reply}
                     />
@@ -307,28 +334,30 @@ const CustomerReview = ({ rating, ratingIndex, toggleReportModal }) => {
             )}
           </div>
           {/* Right Bottom */}
-          <div className='flex flex-row justify-between items-center'>
-            {/* Right Bottom Left */}
-            <div onClick={toggleReportModal} className='flex flex-row justify-between items-center m-0 pl-1 right-bottom-left'>
-              <MdReport className='report-icon' />
-              <p className='m-0 pl-1 report-text'>Report</p>
-            </div>
-            {/* Right Bottom Right */}
-            <div
-              onClick={handleLikeRating}
-              className={`flex flex-row justify-between items-center m-0 pr-1 right-bottom-right`}
-            >
-              <AiFillLike
-                className={`like-icon ${likeStatus ? 'liked-icon' : 'not-liked-icon'}`}
-                style={{ color: likeStatus ? 'blue' : 'black' }}
-              />
-              <p
-                className={`m-0 pl-1 like-text ${likeStatus ? 'liked-text' : 'not-liked-text'}`}
+          {!isAdmin && (
+            <div className='flex flex-row justify-between items-center'>
+              {/* Right Bottom Left */}
+              <div onClick={toggleReportModal} className='flex flex-row justify-between items-center m-0 pl-1 right-bottom-left'>
+                <MdReport className='report-icon' />
+                <p className='m-0 pl-1 report-text'>Report</p>
+              </div>
+              {/* Right Bottom Right */}
+              <div
+                onClick={handleLikeRating}
+                className={`flex flex-row justify-between items-center m-0 pr-1 right-bottom-right`}
               >
-                {likeStatus ? 'Liked' : 'Like'}
-              </p>
+                <AiFillLike
+                  className={`like-icon ${likeStatus ? 'liked-icon' : 'not-liked-icon'}`}
+                  style={{ color: likeStatus ? 'blue' : 'black' }}
+                />
+                <p
+                  className={`m-0 pl-1 like-text ${likeStatus ? 'liked-text' : 'not-liked-text'}`}
+                >
+                  {likeStatus ? 'Liked' : 'Like'}
+                </p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
       {replyState !== REPLY_WRAPPER_CLOSED && (
