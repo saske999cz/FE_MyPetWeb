@@ -136,7 +136,7 @@ const InvoiceList = () => {
   ]
 
   const [invoiceStatusFilter, setInvoiceStatusFilter] = useState(ALL_FILTER_STATUS)
-  const [startDate, setStartDate] = useState(() => dayjs())
+  const [startDate, setStartDate] = useState(() => dayjs().startOf('year'))
   const [endDate, setEndDate] = useState(() => dayjs())
   const [formattedStartDate, setFormattedStartDate] = useState(() => dayjs().format('YYYY-MM-DD'))
   const [formattedEndDate, setFormattedEndDate] = useState(() => dayjs().format('YYYY-MM-DD'))

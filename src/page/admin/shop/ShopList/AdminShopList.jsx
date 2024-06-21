@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { Button, DatePicker, Divider, Table, Tooltip } from 'antd'
 import Search from 'antd/es/input/Search'
-import { FaCalendarAlt, FaSearch, FaTrashRestore } from 'react-icons/fa'
-import { FaCheck, FaEye, FaStar, FaTrash } from 'react-icons/fa6'
-import { MdOutlineDesktopAccessDisabled, MdOutlinePets } from 'react-icons/md'
+import { FaCalendarAlt, FaSearch, FaTrashRestore, FaWindowClose } from 'react-icons/fa'
+import { FaCheck, FaEye, FaStar } from 'react-icons/fa6'
+import { MdNewLabel } from 'react-icons/md'
 import Column from 'antd/es/table/Column';
 import { LazyLoadImage } from 'react-lazy-load-image-component'
 import loadingImg from '../../../../assets/images/loading.png'
@@ -29,7 +29,7 @@ const AdminShopList = () => {
 
   const [loading, setLoading] = useState(true);
   const [searchShopInput, setSearchShopInput] = useState('')
-  const [searchShopNotApprovedInput, setSearchShopNotApprovedInput] = useState('')
+  const [searchShopWaitingApproveInput, setSearchShopWaitingApproveInput] = useState('')
   const [searchShopBlockedInput, setSearchShopBlockedInput] = useState('')
 
   // --------------     PAGINATION STATE     --------------
@@ -38,15 +38,15 @@ const AdminShopList = () => {
   const allPageSize = [10, 20, 30];
   const [currentPage, setCurrentPage] = useState(DEFAULT_CURRENT_PAGE_NUMBER);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE_NUMBER);
-  const [currentPageNotApproved, setCurrentPageNotApproved] = useState(DEFAULT_CURRENT_PAGE_NUMBER);
-  const [pageSizeNotApproved, setPageSizeNotApproved] = useState(DEFAULT_PAGE_SIZE_NUMBER);
+  const [currentPageWaitingApprove, setCurrentPageWaitingApprove] = useState(DEFAULT_CURRENT_PAGE_NUMBER);
+  const [pageSizeWaitingApprove, setPageSizeWaitingApprove] = useState(DEFAULT_PAGE_SIZE_NUMBER);
   const [currentPageBlocked, setCurrentPageBlocked] = useState(DEFAULT_CURRENT_PAGE_NUMBER);
   const [pageSizeBlocked, setPageSizeBlocked] = useState(DEFAULT_PAGE_SIZE_NUMBER);
 
   const [listShops, setListShops] = useState([]);
   const [totalShops, setTotalShops] = useState(0);
-  const [listNotApprovedShops, setListNotApprovedShops] = useState([]);
-  const [totalNotApprovedShops, setTotalNotApprovedShops] = useState(0);
+  const [listWaitingApproveShops, setListWaitingApproveShops] = useState([]);
+  const [totalWaitingApproveShops, setTotalWaitingApproveShops] = useState(0);
   const [listBlockedShops, setListBlockedShops] = useState([]);
   const [totalBlockedShops, setTotalBlockedShops] = useState(0);
 
@@ -55,10 +55,10 @@ const AdminShopList = () => {
   const [formattedStartDate, setFormattedStartDate] = useState(() => dayjs().startOf('year').format('YYYY-MM-DD'))
   const [formattedEndDate, setFormattedEndDate] = useState(() => dayjs().format('YYYY-MM-DD'))
   // -------------------------------------------------------
-  const [startDateNotApproved, setStartDateNotApproved] = useState(() => dayjs().startOf('year'))
-  const [endDateNotApproved, setEndDateNotApproved] = useState(() => dayjs())
-  const [formattedStartDateNotApproved, setFormattedStartDateNotApproved] = useState(() => dayjs().startOf('year').format('YYYY-MM-DD'))
-  const [formattedEndDateNotApproved, setFormattedEndDateNotApproved] = useState(() => dayjs().format('YYYY-MM-DD'))
+  const [startDateWaitingApprove, setStartDateWaitingApprove] = useState(() => dayjs().startOf('year'))
+  const [endDateWaitingApprove, setEndDateWaitingApprove] = useState(() => dayjs())
+  const [formattedStartDateWaitingApprove, setFormattedStartDateWaitingApprove] = useState(() => dayjs().startOf('year').format('YYYY-MM-DD'))
+  const [formattedEndDateWaitingApprove, setFormattedEndDateWaitingApprove] = useState(() => dayjs().format('YYYY-MM-DD'))
   // -------------------------------------------------------
   const [startDateBlocked, setStartDateBlocked] = useState(() => dayjs().startOf('year'))
   const [endDateBlocked, setEndDateBlocked] = useState(() => dayjs())
@@ -77,16 +77,16 @@ const AdminShopList = () => {
     setFormattedEndDate(formattedDate)
   }
 
-  const onChangeStartDateNotApproved = (date) => {
+  const onChangeStartDateWaitingApprove = (date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
-    setStartDateNotApproved(startDate)
-    setFormattedStartDateNotApproved(formattedDate)
+    setStartDateWaitingApprove(startDate)
+    setFormattedStartDateWaitingApprove(formattedDate)
   }
 
-  const onChangeEndDateNotApproved = (date) => {
+  const onChangeEndDateWaitingApprove = (date) => {
     const formattedDate = date ? dayjs(date).format('YYYY-MM-DD') : '';
-    setEndDateNotApproved(date)
-    setFormattedEndDateNotApproved(formattedDate)
+    setEndDateWaitingApprove(date)
+    setFormattedEndDateWaitingApprove(formattedDate)
   }
 
   const onChangeStartDateBlocked = (date) => {
@@ -113,7 +113,7 @@ const AdminShopList = () => {
       const shopData = response.data.data
 
       if (shopData.length === 0) {
-        toast.error('No shop founded', {
+        toast.info('No shop founded', {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -153,14 +153,14 @@ const AdminShopList = () => {
     }
   }
 
-  const onSearchNotApproved = async () => {
+  const onSearchWaitingApprove = async () => {
     try {
-      const fetchUrl = `admin/shops/not-approved?page_number=${currentPageNotApproved}&num_of_page=${pageSizeNotApproved}&start_date=${formattedStartDateNotApproved}&end_date=${formattedEndDateNotApproved}&search_term=${searchShopNotApprovedInput}`
+      const fetchUrl = `admin/shops/waiting-approve?page_number=${currentPageWaitingApprove}&num_of_page=${pageSizeWaitingApprove}&start_date=${formattedStartDateWaitingApprove}&end_date=${formattedEndDateWaitingApprove}&search_term=${searchShopWaitingApproveInput}`
       const response = await http.get(fetchUrl)
       const shopData = response.data.data
 
       if (shopData.length === 0) {
-        toast.error('No shop founded', {
+        toast.info('No shop founded', {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -171,10 +171,10 @@ const AdminShopList = () => {
           theme: "colored",
         })
       } else {
-        setListNotApprovedShops(shopData);
-        setTotalNotApprovedShops(response.data.total_shops)
+        setListWaitingApproveShops(shopData);
+        setTotalWaitingApproveShops(response.data.total_shops)
 
-        toast.success('Successfully search not approved shop', {
+        toast.success('Successfully search waiting approve shop', {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -197,7 +197,7 @@ const AdminShopList = () => {
       const shopData = response.data.data
 
       if (shopData.length === 0) {
-        toast.error('No shop founded', {
+        toast.info('No shop founded', {
           position: "top-right",
           autoClose: 3000,
           hideProgressBar: false,
@@ -242,7 +242,7 @@ const AdminShopList = () => {
       cancelButtonText: 'Cancel',
     }).then((result) => {
       if (result.isConfirmed) {
-        http.patch(`admin/shops/approved/${record.account_id}`)
+        http.patch(`admin/shops/approve/${record.account_id}`)
           .then((resolve) => {
             Swal.fire({
               icon: "success",
@@ -329,13 +329,13 @@ const AdminShopList = () => {
     });
   }
 
-  // --------------     SEARCH PRODUCT     --------------
+  // --------------     SEARCH SHOP INPUT     --------------
   const handleSearchShop = (e) => {
     setSearchShopInput(e.target.value)
   }
 
-  const handleSearchShopNotApproved = (e) => {
-    setSearchShopNotApprovedInput(e.target.value)
+  const handleSearchShopWaitingApprove = (e) => {
+    setSearchShopWaitingApproveInput(e.target.value)
   }
 
   const handleSearchShopBlocked = (e) => {
@@ -353,14 +353,14 @@ const AdminShopList = () => {
     setPageSize(pageSize)
   }
 
-  const handleClickPaginateNotApproved = (page, pageSize) => {
-    setCurrentPageNotApproved(page)
-    setPageSizeNotApproved(pageSize)
+  const handleClickPaginateWaitingApprove = (page, pageSize) => {
+    setCurrentPageWaitingApprove(page)
+    setPageSizeWaitingApprove(pageSize)
   }
 
-  const handleShowSizeChangeNotApproved = (currentPage, pageSize) => {
-    setCurrentPageNotApproved(currentPage);
-    setPageSizeNotApproved(pageSize)
+  const handleShowSizeChangeWaitingApprove = (currentPage, pageSize) => {
+    setCurrentPageWaitingApprove(currentPage);
+    setPageSizeWaitingApprove(pageSize)
   }
 
   const handleClickPaginateBlocked = (page, pageSize) => {
@@ -373,7 +373,7 @@ const AdminShopList = () => {
     setPageSizeBlocked(pageSize)
   }
 
-  // --------------------------     Fetch Approved Shop API     --------------------------
+  // --------------------------     Fetch Shop API     --------------------------
   useEffect(() => {
     const fetchShops = async () => {
       try {
@@ -383,7 +383,7 @@ const AdminShopList = () => {
         console.log(response)
 
         if (shopData.length === 0 && !loading) {
-          toast.error('No shop founded', {
+          toast.info('No shop founded', {
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
@@ -442,17 +442,17 @@ const AdminShopList = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPage, pageSize, formattedStartDate, formattedEndDate])
 
-  // --------------------------     Fetch Not Approved Shop API     --------------------------
+  // --------------------------     Fetch Waiting Approve Shop API     --------------------------
   useEffect(() => {
-    const fetchNotApprovedShops = async () => {
+    const fetchWaitingApproveShops = async () => {
       try {
-        const fetchUrl = `admin/shops/not-approved?page_number=${currentPageNotApproved}&num_of_page=${pageSizeNotApproved}&start_date=${formattedStartDateNotApproved}&end_date=${formattedEndDateNotApproved}`
+        const fetchUrl = `admin/shops/waiting-approve?page_number=${currentPageWaitingApprove}&num_of_page=${pageSizeWaitingApprove}&start_date=${formattedStartDateWaitingApprove}&end_date=${formattedEndDateWaitingApprove}`
         const response = await http.get(fetchUrl)
         const shopData = response.data.data
         console.log(response)
 
         if (shopData.length === 0 && !loading) {
-          toast.error('No shop founded', {
+          toast.info('No shop founded', {
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
@@ -464,13 +464,13 @@ const AdminShopList = () => {
           })
           setLoading(false)
         } else {
-          setListNotApprovedShops(shopData)
-          setTotalNotApprovedShops(response.data.total_shops)
+          setListWaitingApproveShops(shopData)
+          setTotalWaitingApproveShops(response.data.total_shops)
 
           if (loading) {
             setLoading(false)
           } else {
-            toast.success('Successfully retrieved not approved shop', {
+            toast.success('Successfully retrieved waiting approve shop', {
               position: "top-right",
               autoClose: 3000,
               hideProgressBar: false,
@@ -497,9 +497,9 @@ const AdminShopList = () => {
       }
     }
 
-    fetchNotApprovedShops()
+    fetchWaitingApproveShops()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPageNotApproved, pageSizeNotApproved, formattedStartDateNotApproved, formattedEndDateNotApproved])
+  }, [currentPageWaitingApprove, pageSizeWaitingApprove, formattedStartDateWaitingApprove, formattedEndDateWaitingApprove])
 
   // --------------------------     Fetch Blocked Shop API     --------------------------
   useEffect(() => {
@@ -511,7 +511,7 @@ const AdminShopList = () => {
         console.log(response)
 
         if (shopData.length === 0 && !loading) {
-          toast.error('No shop founded', {
+          toast.info('No shop founded', {
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
@@ -572,8 +572,8 @@ const AdminShopList = () => {
     <div className='flex flex-col items-start justify-between bg-white p-6 rounded-md'>
       <Divider orientation='left'>
         <div className='flex flex-row gap-2 items-center'>
-          <FaCheck />
-          <span className='text-gray-800 font-bold text-md'>Approved</span>
+          <FaCheck size={20} />
+          <span className='text-gray-800 font-bold text-md'>Active</span>
         </div>
       </Divider>
       <div className='flex flex-col items-center w-full gap-6 mb-6'>
@@ -750,7 +750,7 @@ const AdminShopList = () => {
                     <FaEye size={18} className='text-purple-600' />
                   </button>
                   <button onClick={() => handleBlock(record)} className='bg-red-200 rounded-md p-1.5'>
-                    <MdOutlineDesktopAccessDisabled size={18} className='text-red-600' />
+                    <FaWindowClose size={18} className='text-red-600' />
                   </button>
                 </div>
               )}
@@ -760,8 +760,8 @@ const AdminShopList = () => {
       </div>
       <Divider orientation='left'>
         <div className='flex flex-row gap-2 items-center'>
-          <IoClose />
-          <span className='text-gray-800 font-bold text-md'>Not Approved</span>
+          <MdNewLabel size={20} />
+          <span className='text-gray-800 font-bold text-md'>Waiting Approve</span>
         </div>
       </Divider>
       <div className='flex flex-col items-center w-full gap-6 mb-6'>
@@ -776,8 +776,8 @@ const AdminShopList = () => {
             <DatePicker
               className='w-52 h-10'
               picker='date'
-              defaultValue={startDateNotApproved}
-              onChange={onChangeStartDateNotApproved}
+              defaultValue={startDateWaitingApprove}
+              onChange={onChangeStartDateWaitingApprove}
               disabledDate={disabledDate}
             />
           </div>
@@ -791,8 +791,8 @@ const AdminShopList = () => {
             <DatePicker
               className='w-52 h-10'
               picker='date'
-              defaultValue={endDateNotApproved}
-              onChange={onChangeEndDateNotApproved}
+              defaultValue={endDateWaitingApprove}
+              onChange={onChangeEndDateWaitingApprove}
               disabledDate={disabledDate}
             />
           </div>
@@ -807,34 +807,34 @@ const AdminShopList = () => {
               className='mt-2'
               placeholder="Shop name / email / phone"
               enterButton={
-                <Button type="primary" disabled={searchShopNotApprovedInput.trim() === ''}>
+                <Button type="primary" disabled={searchShopWaitingApproveInput.trim() === ''}>
                   Search
                 </Button>
               }
               size="large"
-              onSearch={onSearchNotApproved}
-              onChange={handleSearchShopNotApproved}
-              value={searchShopNotApprovedInput}
+              onSearch={onSearchWaitingApprove}
+              onChange={handleSearchShopWaitingApprove}
+              value={searchShopWaitingApproveInput}
             />
           </div>
         </div>
-        {/* NOT APPROVED SHOP */}
+        {/* WAITING APPROVE SHOP */}
         <div className='w-full'>
           <Table
             bordered
-            dataSource={listNotApprovedShops}
+            dataSource={listWaitingApproveShops}
             pagination={{
               defaultCurrent: DEFAULT_CURRENT_PAGE_NUMBER,
               defaultPageSize: DEFAULT_PAGE_SIZE_NUMBER,
               hideOnSinglePage: true,
-              current: currentPageNotApproved,
+              current: currentPageWaitingApprove,
               pageSizeOptions: allPageSize,
               showSizeChanger: true,
               showQuickJumper: true,
-              total: totalNotApprovedShops,
-              showTotal: (totalNotApprovedShops) => `Total ${totalNotApprovedShops} not approved shops`,
-              onChange: handleClickPaginateNotApproved,
-              onShowSizeChange: handleShowSizeChangeNotApproved
+              total: totalWaitingApproveShops,
+              showTotal: (totalWaitingApproveShops) => `Total ${totalWaitingApproveShops} waiting approve shops`,
+              onChange: handleClickPaginateWaitingApprove,
+              onShowSizeChange: handleShowSizeChangeWaitingApprove
             }}
           >
             <Column
@@ -842,7 +842,7 @@ const AdminShopList = () => {
               title='No.'
               key='no.'
               render={(text, record, index) => (
-                <span className='font-semibold'>{currentPageNotApproved * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>
+                <span className='font-semibold'>{currentPageWaitingApprove * DEFAULT_PAGE_SIZE_NUMBER - DEFAULT_PAGE_SIZE_NUMBER + index + 1}</span>
               )}
             />
             <Column
@@ -903,7 +903,7 @@ const AdminShopList = () => {
             />
             <Column
               align='left'
-              title='Work Timer'
+              title='Work Time'
               key='work_time'
               dataIndex='work_time'
               render={(text, _) => {
@@ -933,7 +933,7 @@ const AdminShopList = () => {
                     <FaCheck size={18} className='text-green-600' />
                   </button>
                   <button onClick={() => handleBlock(record)} className='bg-red-200 rounded-md p-1.5'>
-                    <MdOutlineDesktopAccessDisabled size={18} className='text-red-600' />
+                    <FaWindowClose size={18} className='text-red-600' />
                   </button>
                 </div>
               )}
@@ -943,7 +943,7 @@ const AdminShopList = () => {
       </div>
       <Divider orientation='left'>
         <div className='flex flex-row gap-2 items-center'>
-          <IoClose />
+          <IoClose size={20} />
           <span className='text-gray-800 font-bold text-md'>Blocked</span>
         </div>
       </Divider>
@@ -996,7 +996,7 @@ const AdminShopList = () => {
               }
               size="large"
               onSearch={onSearchBlocked}
-              onChange={handleSearchShopNotApproved}
+              onChange={handleSearchShopBlocked}
               value={searchShopBlockedInput}
             />
           </div>
@@ -1086,7 +1086,7 @@ const AdminShopList = () => {
             />
             <Column
               align='left'
-              title='Work Timer'
+              title='Work Time'
               key='work_time'
               dataIndex='work_time'
               render={(text, _) => {
@@ -1115,8 +1115,8 @@ const AdminShopList = () => {
                   <button onClick={() => handleViewShop(record)} className='bg-purple-200 rounded-md p-1.5'>
                     <FaEye size={18} className='text-purple-600' />
                   </button>
-                  <button onClick={() => handleRestore(record)} className='bg-red-200 rounded-md p-1.5'>
-                    <FaTrashRestore size={18} className='text-red-600' />
+                  <button onClick={() => handleRestore(record)} className='bg-green-200 rounded-md p-1.5'>
+                    <FaTrashRestore size={18} className='text-green-600' />
                   </button>
                 </div>
               )}

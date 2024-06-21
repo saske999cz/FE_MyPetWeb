@@ -22,14 +22,14 @@ import ProductCreate from "./page/shop/product/ProductCreate/ProductCreate";
 import Profile from "./page/profile/Profile";
 import Dashboard from "./page/Dashboard";
 import { useAuth } from "./utils/AuthContext";
-import ShopList from "./page/admin/shop/ShopList/AdminShopList";
-import MedicalCenterList from "./page/admin/medicalCenter/MedicalCenterList/AdminMedicalCenterList";
 import AdminShopList from "./page/admin/shop/ShopList/AdminShopList";
 import AdminMedicalCenterList from "./page/admin/medicalCenter/MedicalCenterList/AdminMedicalCenterList";
 import AdminAidCenterList from "./page/admin/aidCenter/AidCenterList/AdminAidCenterList";
 import HelpSupport from "./page/HelpSupport";
 import Settings from "./page/settings/Settings";
 import AdminShopDetail from "./page/admin/shop/ShopDetail/AdminShopDetail";
+import AdminMedicalCenterDetail from "./page/admin/medicalCenter/MedicalCenterDetail/AdminMedicalCenterDetail";
+import AdminAidCenterDetail from "./page/admin/aidCenter/AidCenterDetail/AdminAidCenterDetail";
 
 function App() {
   const ROLE_ADMIN = "ROLE_ADMIN";
@@ -164,10 +164,26 @@ function App() {
               }
             />
             <Route
+              path="medical-center-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminMedicalCenterDetail />
+                </AuthRoute>
+              }
+            />
+            <Route
               path="aid-center-list"
               element={
                 <AuthRoute roles={[ROLE_ADMIN]}>
                   <AdminAidCenterList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="aid-center-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminAidCenterDetail />
                 </AuthRoute>
               }
             />

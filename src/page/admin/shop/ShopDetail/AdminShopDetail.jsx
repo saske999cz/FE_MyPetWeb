@@ -15,7 +15,9 @@ import { IoIosBusiness } from "react-icons/io";
 import { AiOutlineGlobal } from 'react-icons/ai';
 import revenueIcon from '../../../../assets/images/revenue.png'
 import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
 import CustomerReview from '../../../../components/CustomerReview/CustomerReview';
+import Map from '../../../../components/Map';
 const { Option } = Select;
 
 const AdminShopDetail = () => {
@@ -29,6 +31,10 @@ const AdminShopDetail = () => {
   // Fetch list image state
   const [imageList, setImageList] = useState([]);
   const [selectedImage, setSelectedImage] = useState("");
+
+  const [location, setLocation] = useState('');
+
+  const [coords, setCoords] = useState({ lat: 0, lng: 0 })
 
   const desc = ['terrible', 'bad', 'normal', 'good', 'wonderful'];
   const [fiveStarCount, setFiveStarCount] = useState(0)
@@ -78,6 +84,26 @@ const AdminShopDetail = () => {
     return value.toLocaleString('it-IT');
   };
 
+  // Get shop address location
+  useEffect(() => {
+    const getCoords = async () => {
+      if (loading) {
+        try {
+          console.log(location);
+          const results = await geocodeByAddress(location);
+          console.log(results);
+          const latLng = await getLatLng(results[0]);
+          setCoords(latLng);
+        } catch (error) {
+          console.log(error);
+        }
+      }
+    };
+
+    getCoords();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [location]);
+
   // --------------------------     Get Shop Detail     --------------------------
   useEffect(() => {
     const fetchShop = async () => {
@@ -85,6 +111,17 @@ const AdminShopDetail = () => {
         const response = await http.get(`/admin/shops/${id}`)
         const shopData = response.data.data
         setShop(shopData)
+        setLocation(shopData.address)
+
+        if (shopData.certificate) {
+          const certificateRef = ref(storage, shopData.certificate)
+          const certificateUrl = await getDownloadURL(certificateRef)
+          setShop({
+            ...shopData,
+            certificate_url: certificateUrl
+          })
+        }
+
         return shopData.image
       } catch (error) {
         console.log(error)
@@ -233,7 +270,7 @@ const AdminShopDetail = () => {
             ))}
           </div>
         </div>
-        {/* Right Item */}
+        {/* Middle Item */}
         <div className='flex flex-col flex-1 items-start'>
           <Divider style={{ color: 'red' }} orientation='left' orientationMargin={0}>
             <span className='text-gray-800 font-bold text-md'>Shop Details</span>
@@ -354,12 +391,46 @@ const AdminShopDetail = () => {
             </div>
           </div>
         </div>
+        {/* Right Item */}
+        <div className='flex flex-col flex-1 items-start'>
+          <Divider style={{ color: 'red' }} orientation='left' orientationMargin={0}>
+            <span className='text-gray-800 font-bold text-md'>Map</span>
+          </Divider>
+          <div className='w-full mt-4'>
+            <Map address={location} coords={coords} />
+          </div>
+        </div>
       </div>
       <div className='mt-4'>
-        <Divider orientation='left' orientationMargin={0}>
-          <span className='text-gray-800 font-bold text-md'>Shop Description</span>
-        </Divider>
-        <p className='text-gray-600 m-6 text-justify'>{shop.description}</p>
+        {shop?.certificate ? (
+          <div className='w-full flex flex-row gap-10'>
+            <div className='flex flex-col flex-1'>
+              <Divider orientation='left' orientationMargin={0}>
+                <span className='text-gray-800 font-bold text-md'>Shop Description</span>
+              </Divider>
+              <p className='text-gray-600 m-6 text-justify'>{shop.description}</p>
+            </div>
+            <div className='flex flex-col flex-1'>
+              <Divider style={{ color: 'red' }} orientation='left' orientationMargin={0}>
+                <span className='text-gray-800 font-bold text-md'>Certification</span>
+              </Divider>
+              <div className='flex mx-auto'>
+                <img
+                  className='w-60 h-60 p-2 border-2 border-gray-300 border-dashed bg-cover rounded-md transition-all duration-300 ease-in-out object-cover'
+                  src={shop.certificate_url}
+                  alt="certificate"
+                />
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className='w-full'>
+            <Divider orientation='left' orientationMargin={0}>
+              <span className='text-gray-800 font-bold text-md'>Shop Description</span>
+            </Divider>
+            <p className='text-gray-600 m-6 text-justify'>{shop.description}</p>
+          </div>
+        )}
       </div>
       <div className='mt-2'>
         <Divider orientation='left' orientationMargin={0}>

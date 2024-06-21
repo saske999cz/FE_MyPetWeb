@@ -11,7 +11,7 @@ import { BeatLoader } from 'react-spinners';
 import { Link, useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { getAccountTypeStatus } from '../../../utils/statusLabel';
-import { FaCheck, FaEye } from 'react-icons/fa6';
+import { FaCheck } from 'react-icons/fa6';
 import { FaWindowClose } from 'react-icons/fa';
 import Swal from 'sweetalert2'
 const { Option } = Select;
@@ -40,8 +40,8 @@ const AdminDashboard = () => {
   const ROLE_MEDICAL_CENTER = 'Role Medical Center'
   const ROLE_AID_CENTER = 'Role Aid Center'
   const ROLE_CUSTOMER = 'Role Customer'
-  const ACCOUNT_ENABLE = 'Enabled'
-  const ACCOUNT_NOT_APPROVED = 'Not Approved'
+  const ACCOUNT_ENABLE = 'Active'
+  const ACCOUNT_NOT_APPROVED = 'Waiting Approved'
   const ACCOUNT_BLOCKED = 'Blocked'
 
   const [loading, setLoading] = useState(true);
@@ -94,11 +94,11 @@ const AdminDashboard = () => {
       if (result.isConfirmed) {
         let url = ''
         if (record.role_name === 'ROLE_SHOP') {
-          url = `admin/shops/approved/${record.id}`
+          url = `admin/shops/approve/${record.id}`
         } else if (record.role_name === 'ROLE_MEDICAL_CENTER') {
-          url = `admin/shops/approved/${record.id}`
+          url = `admin/medical-centers/approve/${record.id}`
         } else if (record.role_name === 'ROLE_AID_CENTER') {
-          url = `admin/shops/approved/${record.id}`
+          url = `admin/aid-centers/approve/${record.id}`
         }
 
         http.patch(url)
@@ -123,7 +123,7 @@ const AdminDashboard = () => {
     });
   }
 
-  const handleDeleteAccount = (record) => {
+  const handleBlockAccount = (record) => {
     Swal.fire({
       title: 'Block this account?',
       text: 'You are about to make this account inactive',
@@ -136,11 +136,11 @@ const AdminDashboard = () => {
       if (result.isConfirmed) {
         let url = ''
         if (record.role_name === 'ROLE_SHOP') {
-          url = `admin/shops/blocked/${record.id}`
+          url = `admin/shops/block/${record.id}`
         } else if (record.role_name === 'ROLE_MEDICAL_CENTER') {
-          url = `admin/shops/blocked/${record.id}`
+          url = `admin/medical-centers/block/${record.id}`
         } else if (record.role_name === 'ROLE_AID_CENTER') {
-          url = `admin/shops/blocked/${record.id}`
+          url = `admin/aid-centers/block/${record.id}`
         }
 
         http.patch(url)
@@ -527,7 +527,7 @@ const AdminDashboard = () => {
       </div>
       <div className='mt-4 flex gap-4 w-full'>
         <div className="bg-white px-4 pt-3 pb-4 rounded-sm border border-gray-200 flex-1 dashboard-container w-full">
-          <strong className="text-gray-700 font-medium">Recent Wating Approved Account</strong>
+          <strong className="text-gray-700 font-medium">Recent Waiting Approved Account</strong>
           <div className="border-x border-gray-200 rounded-sm mt-3">
             <table className="w-full text-gray-700">
               <thead>
@@ -554,7 +554,7 @@ const AdminDashboard = () => {
                       <button onClick={() => handleApprovedAccount(account)} className='bg-green-200 rounded-md p-1.5'>
                         <FaCheck size={18} className='text-green-600' />
                       </button>
-                      <button onClick={() => handleDeleteAccount(account)} className='bg-red-200 rounded-md p-1.5'>
+                      <button onClick={() => handleBlockAccount(account)} className='bg-red-200 rounded-md p-1.5'>
                         <FaWindowClose size={18} className='text-red-600' />
                       </button>
                     </td>
