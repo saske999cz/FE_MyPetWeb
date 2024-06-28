@@ -1,35 +1,49 @@
-import { Button, Divider, Form, Input, InputNumber, TimePicker, Upload } from 'antd'
-import TextArea from 'antd/es/input/TextArea';
-import React, { useEffect, useState } from 'react'
-import { FaEdit } from 'react-icons/fa';
-import { UploadOutlined } from '@ant-design/icons';
-import { toast } from 'react-toastify';
-import { uploadBytes, getDownloadURL, ref, deleteObject, listAll } from 'firebase/storage';
-import { storage, firebaseConfig } from '../../utils/firebase';
-import { useNavigate } from 'react-router-dom';
-import Map from '../../components/Map';
-import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
-import Swal from 'sweetalert2';
-import AuthUser from '../../utils/AuthUser';
-import moment from 'moment';
-import './Profile.scss';
-import { useDispatch } from 'react-redux';
-import { addAvatar } from '../../redux/actions';
-import { BeatLoader } from 'react-spinners';
-import { MdOutlineSecurity } from 'react-icons/md';
+import {
+  Button,
+  Divider,
+  Form,
+  Input,
+  InputNumber,
+  TimePicker,
+  Upload,
+} from "antd";
+import TextArea from "antd/es/input/TextArea";
+import React, { useEffect, useState } from "react";
+import { FaEdit } from "react-icons/fa";
+import { UploadOutlined } from "@ant-design/icons";
+import { toast } from "react-toastify";
+import {
+  uploadBytes,
+  getDownloadURL,
+  ref,
+  deleteObject,
+  listAll,
+} from "firebase/storage";
+import { storage, firebaseConfig } from "../../utils/firebase";
+import { useNavigate } from "react-router-dom";
+import Map from "../../components/Map";
+import { geocodeByAddress, getLatLng } from "react-google-places-autocomplete";
+import Swal from "sweetalert2";
+import AuthUser from "../../utils/AuthUser";
+import moment from "moment";
+import "./Profile.scss";
+import { useDispatch } from "react-redux";
+import { addAvatar } from "../../redux/actions";
+import { BeatLoader } from "react-spinners";
+import { MdOutlineSecurity } from "react-icons/md";
 
 const Profile = () => {
-  const { http } = AuthUser()
+  const { http } = AuthUser();
 
-  const navigate = useNavigate()
-  const dispatch = useDispatch()
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const editFormLayout = {
     labelCol: {
-      span: 16
+      span: 16,
     },
     wrapperCol: {
-      span: 24
+      span: 24,
     },
   };
 
@@ -42,7 +56,7 @@ const Profile = () => {
   const [locationForm] = Form.useForm();
   const [changePasswordForm] = Form.useForm();
 
-  const [shopProfile, setShopProfile] = useState({})
+  const [shopProfile, setShopProfile] = useState({});
 
   const [galleries, setGalleries] = useState([]);
   const [avatar, setAvatar] = useState([]);
@@ -52,35 +66,35 @@ const Profile = () => {
   const [currentCertificationUrls, setCurrentCertificationUrls] = useState([]);
 
   const [location, setLocation] = useState(() => {
-    const storedAddress = localStorage.getItem('shopAddress');
-    console.log(typeof storedAddress)
-    return storedAddress ?? '';
+    const storedAddress = localStorage.getItem("shopAddress");
+    console.log(typeof storedAddress);
+    return storedAddress ?? "";
   });
 
   const [coords, setCoords] = useState(() => {
-    const storedCoords = localStorage.getItem('shopCoords');
+    const storedCoords = localStorage.getItem("shopCoords");
     return storedCoords ? JSON.parse(storedCoords) : { lat: 0, lng: 0 };
-  })
+  });
 
   const handleEditProfile = () => {
     setEditProfileMode(true);
     setChangePasswordMode(false);
-  }
+  };
 
   const handleChangePassword = () => {
     setEditProfileMode(false);
     setChangePasswordMode(true);
-  }
+  };
 
   const submitLocation = (values) => {
-    console.log(values)
-    setLocation(values.address)
-  }
+    console.log(values);
+    setLocation(values.address);
+  };
 
   const submitLocationFailed = (errorInfo) => {
-    console.log(errorInfo)
-    setLocation(errorInfo.values.address)
-    toast.error('Please fill in the address field', {
+    console.log(errorInfo);
+    setLocation(errorInfo.values.address);
+    toast.error("Please fill in the address field", {
       position: "top-right",
       autoClose: 3000,
       hideProgressBar: false,
@@ -89,8 +103,8 @@ const Profile = () => {
       draggable: true,
       progress: undefined,
       theme: "colored",
-    })
-  }
+    });
+  };
 
   // Function to create folder URL
   const createFolderUrl = (folderId) => {
@@ -135,48 +149,61 @@ const Profile = () => {
 
     if (!location || location.length === 0) {
       Swal.fire({
-        title: 'Error',
-        text: 'Please fill in the address field',
-        icon: 'error',
+        title: "Error",
+        text: "Please fill in the address field",
+        icon: "error",
       });
     } else {
       try {
         await validateTimes();
 
         Swal.fire({
-          title: 'Processing...',
-          text: 'Please wait while we update information',
+          title: "Processing...",
+          text: "Please wait while we update information",
           allowOutsideClick: false,
           showConfirmButton: false,
-          icon: 'info',
+          icon: "info",
           willOpen: () => {
             Swal.showLoading();
-          }
+          },
         });
 
-        const defaultAvatar = "gs://petshop-3d4ae.appspot.com/avatars/shop/default-user-image.png";
+        const defaultAvatar =
+          "gs://petshop-3d4ae.appspot.com/avatars/shop/default-user-image.png";
         const defaultAvatarPath = "avatars/shop/default-user-image.png";
 
         const shopId = shopProfile.id;
         const folderUrl = createFolderUrl(shopId);
 
-        const startTime = values.startTime.format('hh:mm A');
-        const endTime = values.endTime.format('hh:mm A');
+        const startTime = values.startTime.format("hh:mm A");
+        const endTime = values.endTime.format("hh:mm A");
         const workTime = `${startTime} : ${endTime}`;
 
         // Handle new galleries
-        const newGalleriesFiles = galleries.filter(file => !currentGalleriesUrls.includes(file.url));
-        await Promise.all(newGalleriesFiles.map(file => uploadGalleries(file.originFileObj, shopId)));
+        const newGalleriesFiles = galleries.filter(
+          (file) => !currentGalleriesUrls.includes(file.url)
+        );
+        await Promise.all(
+          newGalleriesFiles.map((file) =>
+            uploadGalleries(file.originFileObj, shopId)
+          )
+        );
 
         // Handle deleted galleries
-        const deletedGalleries = currentGalleriesUrls.filter(url => !galleries.some(file => file.url === url));
-        await Promise.all(deletedGalleries.map(url => deleteImage(url)));
+        const deletedGalleries = currentGalleriesUrls.filter(
+          (url) => !galleries.some((file) => file.url === url)
+        );
+        await Promise.all(deletedGalleries.map((url) => deleteImage(url)));
 
         // Handle new avatar
-        const newAvatarFiles = avatar.filter(file => !currentAvatarUrls.includes(file.url));
-        const newAvatarUrl = await Promise.all(newAvatarFiles.map(file => uploadAvatar(file.originFileObj)));
+        const newAvatarFiles = avatar.filter(
+          (file) => !currentAvatarUrls.includes(file.url)
+        );
+        const newAvatarUrl = await Promise.all(
+          newAvatarFiles.map((file) => uploadAvatar(file.originFileObj))
+        );
 
-        let avatarUrl = '';
+        let avatarUrl = "";
 
         if (shopProfile.avatar === defaultAvatar) {
           // Avatar là mặc định
@@ -191,8 +218,10 @@ const Profile = () => {
           }
         } else {
           // Avatar không phải là mặc định
-          const deletedAvatar = currentAvatarUrls.filter(url => !avatar.some(file => file.url === url));
-          await Promise.all(deletedAvatar.map(url => deleteImage(url)));
+          const deletedAvatar = currentAvatarUrls.filter(
+            (url) => !avatar.some((file) => file.url === url)
+          );
+          await Promise.all(deletedAvatar.map((url) => deleteImage(url)));
 
           if (deletedAvatar.length === 0) {
             avatarUrl = shopProfile.avatar;
@@ -212,66 +241,77 @@ const Profile = () => {
         }
 
         // Handle new certification
-        const newCertificationFiles = certification.filter(file => !currentCertificationUrls.includes(file.url));
-        const newCertificationUrl = await Promise.all(newCertificationFiles.map(file => uploadCertificate(file.originFileObj)));
+        const newCertificationFiles = certification.filter(
+          (file) => !currentCertificationUrls.includes(file.url)
+        );
+        const newCertificationUrl = await Promise.all(
+          newCertificationFiles.map((file) =>
+            uploadCertificate(file.originFileObj)
+          )
+        );
 
         // Handle deleted certification
-        const deletedCertification = currentCertificationUrls.filter(url => !certification.some(file => file.url === url));
-        await Promise.all(deletedCertification.map(url => deleteImage(url)));
+        const deletedCertification = currentCertificationUrls.filter(
+          (url) => !certification.some((file) => file.url === url)
+        );
+        await Promise.all(deletedCertification.map((url) => deleteImage(url)));
 
-        let certificateUrl = '';
+        let certificateUrl = "";
         if (newCertificationFiles.length === 0) {
-          certificateUrl = shopProfile.certificate ?? '';
+          certificateUrl = shopProfile.certificate ?? "";
         } else {
-          if (deletedCertification.length !== 0 && newCertificationFiles.length === 0) {
-            certificateUrl = '';
+          if (
+            deletedCertification.length !== 0 &&
+            newCertificationFiles.length === 0
+          ) {
+            certificateUrl = "";
           } else {
             certificateUrl = newCertificationUrl[0];
           }
         }
 
         const urlEncodedData = new URLSearchParams();
-        urlEncodedData.append('name', values.name);
-        urlEncodedData.append('description', values.description);
-        urlEncodedData.append('image', folderUrl);
-        urlEncodedData.append('phone', values.phone);
-        urlEncodedData.append('address', location);
-        urlEncodedData.append('website', values.website);
-        urlEncodedData.append('fanpage', values.fanpage);
-        urlEncodedData.append('work_time', workTime);
-        urlEncodedData.append('establish_year', values.establishYear);
-        urlEncodedData.append('username', values.username);
-        urlEncodedData.append('email', values.email);
-        urlEncodedData.append('avatar', avatarUrl);
-        urlEncodedData.append('certificate', certificateUrl);
+        urlEncodedData.append("name", values.name);
+        urlEncodedData.append("description", values.description);
+        urlEncodedData.append("image", folderUrl);
+        urlEncodedData.append("phone", values.phone);
+        urlEncodedData.append("address", location);
+        urlEncodedData.append("website", values.website);
+        urlEncodedData.append("fanpage", values.fanpage);
+        urlEncodedData.append("work_time", workTime);
+        urlEncodedData.append("establish_year", values.establishYear);
+        urlEncodedData.append("username", values.username);
+        urlEncodedData.append("email", values.email);
+        urlEncodedData.append("avatar", avatarUrl);
+        urlEncodedData.append("certificate", certificateUrl);
 
-        await http.put('/shop/profile', urlEncodedData, {
+        await http.put("/shop/profile", urlEncodedData, {
           headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
         });
 
         Swal.fire({
-          title: 'Done',
-          text: 'Successfully updated shop!',
-          icon: 'success',
+          title: "Done",
+          text: "Successfully updated shop!",
+          icon: "success",
         }).then(() => {
           navigate(0);
         });
       } catch (error) {
         console.log(error);
         Swal.fire({
-          title: 'Error',
-          text: 'Oops.. Please try again',
-          icon: 'error',
+          title: "Error",
+          text: "Oops.. Please try again",
+          icon: "error",
         });
       }
     }
   };
 
   const onFinishFailed = (errorInfo) => {
-    console.log(errorInfo)
-    toast.error('Please fill in all required fields', {
+    console.log(errorInfo);
+    toast.error("Please fill in all required fields", {
       position: "top-right",
       autoClose: 3000,
       hideProgressBar: false,
@@ -280,41 +320,41 @@ const Profile = () => {
       draggable: true,
       progress: undefined,
       theme: "colored",
-    })
-  }
+    });
+  };
 
   const updatePassword = async (values) => {
-    console.log(values)
+    console.log(values);
     try {
       const urlEncodedData = new URLSearchParams();
-      urlEncodedData.append('current_password', values.currentPassword);
-      urlEncodedData.append('new_password', values.newPassword);
-      urlEncodedData.append('confirm_password', values.confirmPassword);
+      urlEncodedData.append("current_password", values.currentPassword);
+      urlEncodedData.append("new_password", values.newPassword);
+      urlEncodedData.append("confirm_password", values.confirmPassword);
 
-      await http.patch('/auth/change-password', urlEncodedData, {
+      await http.patch("/auth/change-password", urlEncodedData, {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        }
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       });
 
       Swal.fire({
-        title: 'Done',
-        text: 'Successfully changed password',
-        icon: 'success',
-      })
+        title: "Done",
+        text: "Successfully changed password",
+        icon: "success",
+      });
     } catch (error) {
       console.log(error);
       Swal.fire({
-        title: 'Error',
+        title: "Error",
         text: `${error.response.data.message}`,
-        icon: 'error',
+        icon: "error",
       });
     }
-  }
+  };
 
   const updatePasswordFailed = (errorInfo) => {
-    console.log(errorInfo)
-    toast.error('Please fill in all required fields', {
+    console.log(errorInfo);
+    toast.error("Please fill in all required fields", {
       position: "top-right",
       autoClose: 3000,
       hideProgressBar: false,
@@ -323,8 +363,8 @@ const Profile = () => {
       draggable: true,
       progress: undefined,
       theme: "colored",
-    })
-  }
+    });
+  };
 
   const handleGalleriesChange = (newFileList) => {
     setGalleries(newFileList);
@@ -339,34 +379,43 @@ const Profile = () => {
   };
 
   const handleRemoveGallery = (file) => {
-    setGalleries((prevFileList) => prevFileList.filter(item => item.uid !== file.uid));
+    setGalleries((prevFileList) =>
+      prevFileList.filter((item) => item.uid !== file.uid)
+    );
   };
 
   const handleRemoveAvatar = (file) => {
-    setAvatar((prevFileList) => prevFileList.filter(item => item.uid !== file.uid));
+    setAvatar((prevFileList) =>
+      prevFileList.filter((item) => item.uid !== file.uid)
+    );
   };
 
   const handleRemoveCertification = (file) => {
-    setCertification((prevFileList) => prevFileList.filter(item => item.uid !== file.uid));
+    setCertification((prevFileList) =>
+      prevFileList.filter((item) => item.uid !== file.uid)
+    );
   };
 
   // Function to disable minutes
   const disabledTime = () => {
     return {
-      disabledMinutes: () => [...Array(60).keys()].filter(minute => minute !== 0 && minute !== 30),
+      disabledMinutes: () =>
+        [...Array(60).keys()].filter((minute) => minute !== 0 && minute !== 30),
     };
   };
 
   const validateTimes = () => {
     return new Promise((resolve, reject) => {
       form
-        .validateFields(['startTime', 'endTime'])
+        .validateFields(["startTime", "endTime"])
         .then((values) => {
-          const start = values.startTime.format('A');
-          const end = values.endTime.format('A');
+          const start = values.startTime.format("A");
+          const end = values.endTime.format("A");
 
-          if (start !== 'AM' || end !== 'PM') {
-            reject('Start time must be in the morning (AM) and end time must be in the evening (PM).');
+          if (start !== "AM" || end !== "PM") {
+            reject(
+              "Start time must be in the morning (AM) and end time must be in the evening (PM)."
+            );
           } else {
             resolve();
           }
@@ -381,25 +430,25 @@ const Profile = () => {
   useEffect(() => {
     const fetchShopProfile = async () => {
       try {
-        const response = await http.get('/shop/profile');
+        const response = await http.get("/shop/profile");
         const shopProfile = response.data.data;
-        console.log(shopProfile)
+        console.log(shopProfile);
 
         setShopProfile(shopProfile);
-        setLocation(shopProfile.address)
+        setLocation(shopProfile.address);
 
         // Fetch images from Firebase Storage
         if (shopProfile.image) {
           const galleriesRef = ref(storage, shopProfile.image);
           const galleriesList = await listAll(galleriesRef);
           const galleriesUrls = await Promise.all(
-            galleriesList.items.map(itemRef => getDownloadURL(itemRef))
+            galleriesList.items.map((itemRef) => getDownloadURL(itemRef))
           );
 
-          const galleries = galleriesUrls.map(url => ({
+          const galleries = galleriesUrls.map((url) => ({
             uid: url, // UID phải duy nhất, có thể sử dụng url
-            name: url.split('/').pop(),
-            status: 'done',
+            name: url.split("/").pop(),
+            status: "done",
             url: url, // URL của file
           }));
 
@@ -412,12 +461,14 @@ const Profile = () => {
           const avatarRef = ref(storage, shopProfile.avatar);
           const avatarUrl = await getDownloadURL(avatarRef);
 
-          const avatar = [{
-            uid: avatarUrl, // UID phải duy nhất, có thể sử dụng url
-            name: avatarUrl.split('/').pop(),
-            status: 'done',
-            url: avatarUrl, // URL của file
-          }];
+          const avatar = [
+            {
+              uid: avatarUrl, // UID phải duy nhất, có thể sử dụng url
+              name: avatarUrl.split("/").pop(),
+              status: "done",
+              url: avatarUrl, // URL của file
+            },
+          ];
 
           setAvatar(avatar);
           setCurrentAvatarUrls([avatarUrl]);
@@ -428,12 +479,14 @@ const Profile = () => {
           const certificateRef = ref(storage, shopProfile.certificate);
           const certificateUrl = await getDownloadURL(certificateRef);
 
-          const certificate = [{
-            uid: certificateUrl, // UID phải duy nhất, có thể sử dụng url
-            name: certificateUrl.split('/').pop(),
-            status: 'done',
-            url: certificateUrl, // URL của file
-          }];
+          const certificate = [
+            {
+              uid: certificateUrl, // UID phải duy nhất, có thể sử dụng url
+              name: certificateUrl.split("/").pop(),
+              status: "done",
+              url: certificateUrl, // URL của file
+            },
+          ];
 
           setCertification(certificate);
           setCurrentCertificationUrls([certificateUrl]);
@@ -449,21 +502,21 @@ const Profile = () => {
           fanpage: shopProfile.fanpage,
           website: shopProfile.website,
           establishYear: shopProfile.establish_year,
-        })
+        });
 
         locationForm.setFieldsValue({
           address: shopProfile.address,
-        })
+        });
 
-        setLoading(false)
+        setLoading(false);
       } catch (error) {
         console.error(error);
       }
-    }
+    };
 
-    fetchShopProfile()
+    fetchShopProfile();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
 
   // Get shop address location
   useEffect(() => {
@@ -477,15 +530,15 @@ const Profile = () => {
           setCoords(latLng);
         } catch (error) {
           console.log(error);
-          toast.error('Invalid address', {
-            position: 'top-right',
+          toast.error("Invalid address", {
+            position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
             progress: undefined,
-            theme: 'colored',
+            theme: "colored",
           });
         }
       }
@@ -497,73 +550,93 @@ const Profile = () => {
 
   useEffect(() => {
     if (shopProfile && shopProfile.work_time) {
-      const [startTime, endTime] = shopProfile.work_time.split(' : ');
+      const [startTime, endTime] = shopProfile.work_time.split(" : ");
 
       form.setFieldsValue({
-        startTime: moment(startTime, 'hh:mm A'),
-        endTime: moment(endTime, 'hh:mm A'),
+        startTime: moment(startTime, "hh:mm A"),
+        endTime: moment(endTime, "hh:mm A"),
       });
     }
   }, [shopProfile, form]);
 
   if (loading) {
     return (
-      <div className='h-full'>
-        <BeatLoader className='relative top-1/2 transform -translate-y-1/2' color="#2463eb" size={36} />
+      <div className="w-full h-full flex flex-row items-center justify-center">
+        <BeatLoader
+          className="relative top-1/2 transform -translate-y-1/2"
+          color="#2463eb"
+          size={36}
+        />
       </div>
-    )
+    );
   }
 
   return (
-    <div className='flex flex-col w-full h-full items-start justify-between'>
-      <div className='bg-white w-full p-6 rounded-md'>
-        <div className='flex justify-start items-center gap-3'>
+    <div className="flex flex-col w-full h-full items-start justify-between">
+      <div className="bg-white w-full p-6 rounded-md">
+        <div className="flex justify-start items-center gap-3">
           <button
-            className={`py-3 px-6 rounded-md font-semibold transition duration-500 ${editProfileMode ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white'}`}
+            className={`py-3 px-6 rounded-md font-semibold transition duration-500 ${
+              editProfileMode
+                ? "bg-blue-600 text-white"
+                : "bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white"
+            }`}
             onClick={handleEditProfile}
           >
             Edit Profile
           </button>
           <button
-            className={`py-3 px-6 rounded-md font-semibold transition duration-500 ${changePasswordMode ? 'bg-blue-600 text-white' : 'bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white'}`}
+            className={`py-3 px-6 rounded-md font-semibold transition duration-500 ${
+              changePasswordMode
+                ? "bg-blue-600 text-white"
+                : "bg-white text-blue-600 border border-blue-600 hover:bg-blue-600 hover:text-white"
+            }`}
             onClick={handleChangePassword}
           >
             Change Password
           </button>
         </div>
         {editProfileMode ? (
-          <Divider orientation='left' orientationMargin={0}>
-            <span className='text-gray-800 font-bold text-md'>Edit Profile</span>
+          <Divider orientation="left" orientationMargin={0}>
+            <span className="text-gray-800 font-bold text-md">
+              Edit Profile
+            </span>
           </Divider>
         ) : (
-          <Divider orientation='left' orientationMargin={0}>
-            <span className='text-gray-800 font-bold text-md'>Change Password</span>
+          <Divider orientation="left" orientationMargin={0}>
+            <span className="text-gray-800 font-bold text-md">
+              Change Password
+            </span>
           </Divider>
         )}
         {editProfileMode ? (
           <>
-            <div className='flex w-full items-start gap-12'>
-              <div className='flex flex-col w-[42%] h-full items-start justify-start bg-white rounded-md'>
+            <div className="flex w-full items-start gap-12">
+              <div className="flex flex-col w-[42%] h-full items-start justify-start bg-white rounded-md">
                 {/* Upload Galleries */}
-                <h1 className='text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400'>Galleries</h1>
+                <h1 className="text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400">
+                  Galleries
+                </h1>
                 <Form
                   {...editFormLayout}
                   className="w-full mt-2 flex"
                   form={form}
-                  layout='vertical'
+                  layout="vertical"
                   name="uploadGalleriesForm"
-                  labelAlign='left'
-                  labelWrap='true'
-                  size='large'
-                  autoComplete='off'
+                  labelAlign="left"
+                  labelWrap="true"
+                  size="large"
+                  autoComplete="off"
                   onFinish={onFinish}
                   onFinishFailed={onFinishFailed}
                 >
                   <Upload
-                    className='my-0 mx-auto mt-2'
+                    className="my-0 mx-auto mt-2"
                     listType="picture-card"
                     beforeUpload={() => false}
-                    onChange={({ fileList: newFileList }) => handleGalleriesChange(newFileList)}
+                    onChange={({ fileList: newFileList }) =>
+                      handleGalleriesChange(newFileList)
+                    }
                     onRemove={(file) => handleRemoveGallery(file)}
                     fileList={galleries}
                   >
@@ -571,25 +644,29 @@ const Profile = () => {
                   </Upload>
                 </Form>
                 {/* Upload Avatar */}
-                <h1 className='text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400'>Avatar</h1>
+                <h1 className="text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400">
+                  Avatar
+                </h1>
                 <Form
                   {...editFormLayout}
                   className="w-full mt-2 flex"
                   form={form}
-                  layout='vertical'
+                  layout="vertical"
                   name="uploadAvatarForm"
-                  labelAlign='left'
-                  labelWrap='true'
-                  size='large'
-                  autoComplete='off'
+                  labelAlign="left"
+                  labelWrap="true"
+                  size="large"
+                  autoComplete="off"
                   onFinish={onFinish}
                   onFinishFailed={onFinishFailed}
                 >
                   <Upload
-                    className='my-0 mx-auto mt-2'
+                    className="my-0 mx-auto mt-2"
                     listType="picture-circle"
                     beforeUpload={() => false}
-                    onChange={({ fileList: newFileList }) => handleAvatarChange(newFileList)}
+                    onChange={({ fileList: newFileList }) =>
+                      handleAvatarChange(newFileList)
+                    }
                     onRemove={(file) => handleRemoveAvatar(file)}
                     fileList={avatar}
                     maxCount={1}
@@ -598,25 +675,29 @@ const Profile = () => {
                   </Upload>
                 </Form>
                 {/* Upload Certification */}
-                <h1 className='text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400'>Certification</h1>
+                <h1 className="text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400">
+                  Certification
+                </h1>
                 <Form
                   {...editFormLayout}
                   className="w-full mt-2 flex"
                   form={form}
-                  layout='vertical'
+                  layout="vertical"
                   name="uploadCertificationForm"
-                  labelAlign='left'
-                  labelWrap='true'
-                  size='large'
-                  autoComplete='off'
+                  labelAlign="left"
+                  labelWrap="true"
+                  size="large"
+                  autoComplete="off"
                   onFinish={onFinish}
                   onFinishFailed={onFinishFailed}
                 >
                   <Upload
-                    className='my-0 mx-auto mt-2'
+                    className="my-0 mx-auto mt-2"
                     listType="picture-card"
                     beforeUpload={() => false}
-                    onChange={({ fileList: newFileList }) => handleCertificationChange(newFileList)}
+                    onChange={({ fileList: newFileList }) =>
+                      handleCertificationChange(newFileList)
+                    }
                     onRemove={(file) => handleRemoveCertification(file)}
                     fileList={certification}
                     maxCount={1}
@@ -625,168 +706,168 @@ const Profile = () => {
                   </Upload>
                 </Form>
               </div>
-              <div className='flex flex-col w-[58%] h-full items-start justify-start bg-white rounded-md'>
-                <h1 className='text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400'>Shop Information</h1>
+              <div className="flex flex-col w-[58%] h-full items-start justify-start bg-white rounded-md">
+                <h1 className="text text-xl w-full text-start font-semibold border-b-2 p-2 border-neutral-400">
+                  Shop Information
+                </h1>
                 <Form
                   {...editFormLayout}
                   className="w-full mt-2"
                   form={form}
-                  layout='vertical'
+                  layout="vertical"
                   name="editInformationForm"
-                  labelAlign='left'
-                  labelWrap='true'
-                  size='large'
-                  autoComplete='off'
+                  labelAlign="left"
+                  labelWrap="true"
+                  size="large"
+                  autoComplete="off"
                 >
-                  <div className='flex items-center w-full justify-between'>
+                  <div className="flex items-center w-full justify-between">
                     <Form.Item
-                      className='w-[42%]'
+                      className="w-[42%]"
                       label="Name"
                       name="name"
                       rules={[
                         {
                           required: true,
-                          message: 'Shop name is required!',
+                          message: "Shop name is required!",
                         },
                       ]}
                       hasFeedback
                     >
-                      <Input
-                        placeholder='Type here...'
-                        autoComplete='name'
-                      />
+                      <Input placeholder="Type here..." autoComplete="name" />
                     </Form.Item>
                     <Form.Item
-                      className='w-[22%]'
+                      className="w-[22%]"
                       label="Username"
                       name="username"
                       rules={[
                         {
                           required: true,
-                          message: 'Username is required!',
+                          message: "Username is required!",
                         },
                         {
                           max: 20,
-                          message: 'Username cannot exceed 20 characters!',
+                          message: "Username cannot exceed 20 characters!",
                         },
                       ]}
                       hasFeedback
                     >
                       <Input
-                        placeholder='Type here...'
-                        autoComplete='username'
+                        placeholder="Type here..."
+                        autoComplete="username"
                       />
                     </Form.Item>
                     <Form.Item
-                      className='w-[32%]'
+                      className="w-[32%]"
                       label="Email"
                       name="email"
                       rules={[
                         {
                           required: true,
-                          message: 'Email is required!',
+                          message: "Email is required!",
                         },
                         {
-                          type: 'email',
-                          message: 'Invalid email address!',
+                          type: "email",
+                          message: "Invalid email address!",
                         },
                       ]}
                       hasFeedback
                     >
                       <Input
                         disabled
-                        placeholder='Type here...'
-                        autoComplete='name'
+                        placeholder="Type here..."
+                        autoComplete="name"
                       />
                     </Form.Item>
                   </div>
-                  <Form.Item
-                    label="Description"
-                    name="description"
-                  >
+                  <Form.Item label="Description" name="description">
                     <TextArea
-                      placeholder='Type here...'
-                      autoComplete='description'
+                      placeholder="Type here..."
+                      autoComplete="description"
                       rows={4}
                     />
                   </Form.Item>
-                  <div className='flex items-center justify-between'>
-                    <div className='w-[70%]'>
-                      <div className='flex items-center gap-4'>
+                  <div className="flex items-center justify-between">
+                    <div className="w-[70%]">
+                      <div className="flex items-center gap-4">
                         <Form.Item
-                          className='w-[50%]'
+                          className="w-[50%]"
                           label="Phone"
                           name="phone"
                           rules={[
                             {
                               required: true,
-                              message: 'Phone is required!',
+                              message: "Phone is required!",
                             },
                           ]}
                           hasFeedback
                         >
                           <Input
-                            className='w-full'
-                            placeholder='Set phone here...'
-                            autoComplete='phone'
+                            className="w-full"
+                            placeholder="Set phone here..."
+                            autoComplete="phone"
                           />
                         </Form.Item>
                         <Form.Item
-                          className='w-[50%]'
+                          className="w-[50%]"
                           label="Establish Year"
                           name="establishYear"
                           rules={[
                             {
                               required: true,
-                              message: 'Establish year is required!',
+                              message: "Establish year is required!",
                             },
                           ]}
                           hasFeedback
                         >
                           <InputNumber
-                            className='w-full'
-                            placeholder='Set establish year here...'
-                            autoComplete='establishYear'
+                            className="w-full"
+                            placeholder="Set establish year here..."
+                            autoComplete="establishYear"
                           />
                         </Form.Item>
                       </div>
-                      <div className='flex items-center gap-4'>
+                      <div className="flex items-center gap-4">
                         <Form.Item
-                          className='w-[50%]'
+                          className="w-[50%]"
                           label="Fanpage"
                           name="fanpage"
                         >
                           <Input
-                            className='w-full'
-                            placeholder='Set fanpage here...'
-                            autoComplete='fanpage'
+                            className="w-full"
+                            placeholder="Set fanpage here..."
+                            autoComplete="fanpage"
                           />
                         </Form.Item>
                         <Form.Item
-                          className='w-[50%]'
+                          className="w-[50%]"
                           label="Website"
                           name="website"
                         >
                           <InputNumber
-                            className='w-full'
-                            placeholder='Set website here...'
-                            autoComplete='website'
+                            className="w-full"
+                            placeholder="Set website here..."
+                            autoComplete="website"
                           />
                         </Form.Item>
                       </div>
                     </div>
-                    <div className='w-[26%]'>
+                    <div className="w-[26%]">
                       <Form.Item
                         name="startTime"
                         label="Start Time"
                         rules={[
                           {
                             required: true,
-                            message: 'Please select start time!',
+                            message: "Please select start time!",
                           },
                         ]}
                       >
-                        <TimePicker use12Hours format="h:mm A" disabledTime={disabledTime} />
+                        <TimePicker
+                          use12Hours
+                          format="h:mm A"
+                          disabledTime={disabledTime}
+                        />
                       </Form.Item>
                       <Form.Item
                         name="endTime"
@@ -794,43 +875,50 @@ const Profile = () => {
                         rules={[
                           {
                             required: true,
-                            message: 'Please select end time!',
+                            message: "Please select end time!",
                           },
                         ]}
                       >
-                        <TimePicker use12Hours format="h:mm A" disabledTime={disabledTime} />
+                        <TimePicker
+                          use12Hours
+                          format="h:mm A"
+                          disabledTime={disabledTime}
+                        />
                       </Form.Item>
                     </div>
                   </div>
-                  <div className='flex flex-col w-full items-start justify-start'>
+                  <div className="flex flex-col w-full items-start justify-start">
                     <Form
-                      className='w-full flex items-end gap-4'
+                      className="w-full flex items-end gap-4"
                       form={locationForm}
-                      layout='vertical'
-                      name='locationForm'
+                      layout="vertical"
+                      name="locationForm"
                       onFinish={submitLocation}
                       onFinishFailed={submitLocationFailed}
                     >
                       <Form.Item
-                        className='flex-1'
-                        label='Address'
-                        name='address'
+                        className="flex-1"
+                        label="Address"
+                        name="address"
                         rules={[
                           {
                             required: true,
-                            message: 'Address is required!',
+                            message: "Address is required!",
                           },
                         ]}
                         hasFeedback
                       >
                         <Input
-                          className='w-full'
-                          placeholder='Set address here...'
-                          autoComplete='address'
+                          className="w-full"
+                          placeholder="Set address here..."
+                          autoComplete="address"
                         />
                       </Form.Item>
                       <Form.Item>
-                        <Button type='primary' onClick={() => locationForm.submit()}>
+                        <Button
+                          type="primary"
+                          onClick={() => locationForm.submit()}
+                        >
                           Submit
                         </Button>
                       </Form.Item>
@@ -841,15 +929,17 @@ const Profile = () => {
               </div>
             </div>
             <Form
-              className='w-full mt-8'
+              className="w-full mt-8"
               form={form}
               name="submitButton"
               onFinish={onFinish}
               onFinishFailed={onFinishFailed}
             >
-              <button className='flex items-center justify-center w-full gap-2 bg-blue-600 rounded-md px-4 py-3 hover:opacity-85 transition duration-300'>
-                <FaEdit size={24} style={{ color: 'white' }} />
-                <span className='text-white text-xl font-semibold'>Update Information</span>
+              <button className="flex items-center justify-center w-full gap-2 bg-blue-600 rounded-md px-4 py-3 hover:opacity-85 transition duration-300">
+                <FaEdit size={24} style={{ color: "white" }} />
+                <span className="text-white text-xl font-semibold">
+                  Update Information
+                </span>
               </button>
             </Form>
           </>
@@ -858,13 +948,13 @@ const Profile = () => {
             <Form
               {...editFormLayout}
               form={changePasswordForm}
-              className='w-full px-10'
-              layout='vertical'
+              className="w-full px-10"
+              layout="vertical"
               name="changePasswordForm"
-              labelAlign='left'
-              labelWrap='true'
-              size='large'
-              autoComplete='off'
+              labelAlign="left"
+              labelWrap="true"
+              size="large"
+              autoComplete="off"
               onFinish={updatePassword}
               onFinishFailed={updatePasswordFailed}
             >
@@ -874,71 +964,77 @@ const Profile = () => {
                 rules={[
                   {
                     required: true,
-                    message: 'Current password is required!',
+                    message: "Current password is required!",
                   },
                 ]}
                 hasFeedback
               >
                 <Input.Password
-                  placeholder='******'
-                  autoComplete='currentPassword'
+                  placeholder="******"
+                  autoComplete="currentPassword"
                 />
               </Form.Item>
-              <div className='flex items-center gap-8'>
+              <div className="flex items-center gap-8">
                 <Form.Item
                   label="New Password"
                   name="newPassword"
-                  className='w-1/2'
+                  className="w-1/2"
                   rules={[
                     {
                       required: true,
-                      message: 'New password is required!',
+                      message: "New password is required!",
                     },
                   ]}
                   hasFeedback
                 >
                   <Input.Password
-                    placeholder='******'
-                    autoComplete='newPassword'
+                    placeholder="******"
+                    autoComplete="newPassword"
                   />
                 </Form.Item>
                 <Form.Item
                   label="Confirm Password"
                   name="confirmPassword"
-                  className='w-1/2'
-                  dependencies={['password']}
+                  className="w-1/2"
+                  dependencies={["password"]}
                   hasFeedback
                   rules={[
                     {
                       required: true,
-                      message: 'Please confirm your password!',
+                      message: "Please confirm your password!",
                     },
                     ({ getFieldValue }) => ({
                       validator(_, value) {
-                        if (!value || getFieldValue('newPassword') === value) {
+                        if (!value || getFieldValue("newPassword") === value) {
                           return Promise.resolve();
                         }
-                        return Promise.reject(new Error('The two passwords that you entered do not match!'));
+                        return Promise.reject(
+                          new Error(
+                            "The two passwords that you entered do not match!"
+                          )
+                        );
                       },
                     }),
                   ]}
                 >
                   <Input.Password
-                    placeholder='******'
-                    autoComplete='confirmPassword'
+                    placeholder="******"
+                    autoComplete="confirmPassword"
                   />
                 </Form.Item>
               </div>
-              <button className='flex items-center justify-center w-full mt-4 gap-2 bg-blue-600 rounded-md px-4 py-3 hover:opacity-85 transition duration-300'>
-                <MdOutlineSecurity size={24} style={{ color: 'white' }} />
-                <span className='text-white text-xl font-semibold'>Change Password</span>
+              <button className="flex items-center justify-center w-full mt-4 gap-2 bg-blue-600 rounded-md px-4 py-3 hover:opacity-85 transition duration-300">
+                <MdOutlineSecurity size={24} style={{ color: "white" }} />
+                <span className="text-white text-xl font-semibold">
+                  Change Password
+                </span>
               </button>
             </Form>
           </div>
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Profile
+export default Profile;
