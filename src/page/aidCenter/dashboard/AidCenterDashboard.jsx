@@ -425,7 +425,7 @@ const AidCenterDashboard = () => {
   useEffect(() => {
     const fetchRecentAdoptRequest = async () => {
       try {
-        const response = await http.get('/aid-center/recent-adopt-request')
+        const response = await http.get('/aid-center/adopt-request/pending?page_number=1&num_of_page=10')
         setRecentAdoptRequests(response.data.data)
         setLoading(false)
       } catch (error) {
@@ -766,10 +766,10 @@ const AidCenterDashboard = () => {
                       <Link to={`/adopt-request/${adoptRequest?.id}`}>#{adoptRequest?.id}</Link>
                     </td>
                     <td>
-                      <Link to={`/dashboard/pet-view/${adoptRequest?.pet_id}`}>{adoptRequest?.pet_name}</Link>
+                      <Link to={`/dashboard/pet-view/${adoptRequest?.pet_id}`}>{adoptRequest?.pet.pet_name}</Link>
                     </td>
-                    <td>{adoptRequest?.customer_full_name}</td>
-                    <td>{adoptRequest?.customer_email}</td>
+                    <td>{adoptRequest?.customer.full_name}</td>
+                    <td>{adoptRequest?.customer.email}</td>
                     <td>{format(new Date(adoptRequest?.created_at), 'dd MMM yyyy')}</td>
                   </tr>
                 ))}
