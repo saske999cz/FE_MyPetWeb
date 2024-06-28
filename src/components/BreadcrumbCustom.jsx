@@ -57,7 +57,7 @@ const routesConfig = {
   },
   '/dashboard/shop-view': {
     title: 'Shop List',
-    breadcrumb: 'Shop List',
+    breadcrumb: 'Shop View',
     parent: '/dashboard/shop-list',
   },
   '/dashboard/medical-center-list': {
@@ -77,6 +77,31 @@ const routesConfig = {
     title: 'Aid Center View',
     breadcrumb: 'Aid Center View',
     parent: '/dashboard/aid-center-list',
+  },
+
+  // --------------------------     Aid Center Routes     --------------------------
+  '/dashboard/pet-list': {
+    title: 'Pet List',
+    breadcrumb: 'Pet List',
+  },
+  '/dashboard/pet-view': {
+    title: 'Pet View',
+    breadcrumb: 'Pet View',
+    parent: '/dashboard/pet-list',
+  },
+  '/dashboard/pet-create': {
+    title: 'Pet Create',
+    breadcrumb: 'Pet Create',
+    parent: '/dashboard/pet-list',
+  },
+  '/dashboard/pet-update': {
+    title: 'Pet Update',
+    breadcrumb: 'Pet Update',
+    parent: '/dashboard/pet-list',
+  },
+  '/dashboard/adopt-request-list': {
+    title: ' Adopt Request List',
+    breadcrumb: 'Adopt Request List',
   },
 };
 

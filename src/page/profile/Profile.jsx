@@ -694,6 +694,7 @@ const Profile = () => {
                       hasFeedback
                     >
                       <Input
+                        disabled
                         placeholder='Type here...'
                         autoComplete='name'
                       />

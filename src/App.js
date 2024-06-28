@@ -30,6 +30,11 @@ import Settings from "./page/settings/Settings";
 import AdminShopDetail from "./page/admin/shop/ShopDetail/AdminShopDetail";
 import AdminMedicalCenterDetail from "./page/admin/medicalCenter/MedicalCenterDetail/AdminMedicalCenterDetail";
 import AdminAidCenterDetail from "./page/admin/aidCenter/AidCenterDetail/AdminAidCenterDetail";
+import PetList from "./page/aidCenter/pet/PetList/PetList";
+import PetDetail from "./page/aidCenter/pet/PetDetail/PetDetail";
+import PetCreate from "./page/aidCenter/pet/PetCreate/PetCreate";
+import PetUpdate from "./page/aidCenter/pet/PetUpdate/PetUpdate";
+import AdoptRequestList from "./page/aidCenter/adoptRequest/AdoptRequestList/AdoptRequestList";
 
 function App() {
   const ROLE_ADMIN = "ROLE_ADMIN";
@@ -184,6 +189,48 @@ function App() {
               element={
                 <AuthRoute roles={[ROLE_ADMIN]}>
                   <AdminAidCenterDetail />
+                </AuthRoute>
+              }
+            />
+
+            {/* Aid Center routes */}
+            <Route
+              path="pet-list"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-create"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetCreate />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-view/:id"
+              element={
+              <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetDetail />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-update/:id"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetUpdate />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="adopt-request-list"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <AdoptRequestList />
                 </AuthRoute>
               }
             />

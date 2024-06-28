@@ -5,6 +5,8 @@ import {
 	HiOutlineCog
 } from 'react-icons/hi'
 import { FaFileInvoiceDollar, FaHouseMedical, FaPersonShelter, FaShop } from "react-icons/fa6";
+import { MdOutlinePets } from "react-icons/md";
+import { VscGitPullRequestGoToChanges } from "react-icons/vsc";
 
 export const DASHBOARD_SIDEBAR_TOP_LINKS = {
   ROLE_ADMIN: [
@@ -67,6 +69,18 @@ export const DASHBOARD_SIDEBAR_TOP_LINKS = {
       label: 'Dashboard',
       path: '/dashboard',
       icon: <HiOutlineViewGrid />,
+    },
+    {
+      key: 'pet',
+      label: 'Pet',
+      path: '/dashboard/pet-list',
+      icon: <MdOutlinePets />,
+    },
+    {
+      key: 'adopt-request',
+      label: 'Adopt Request',
+      path: '/dashboard/adopt-request-list',
+      icon: <VscGitPullRequestGoToChanges />,
     },
   ],
 };
