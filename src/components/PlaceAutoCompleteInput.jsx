@@ -1,8 +1,9 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, useEffect, useRef } from "react";
 import { Form, Input } from "antd";
 import { useJsApiLoader } from "@react-google-maps/api";
 
-const PlaceAutocompleteInput = ({ setData, form }) => {
+const PlaceAutocompleteInput = ({ setData, form, width }) => {
   const [autoComplete, setAutoComplete] = useState(null);
   const placeAutoCompleteRef = useRef(null);
 
@@ -95,8 +96,13 @@ const PlaceAutocompleteInput = ({ setData, form }) => {
       label="Address"
       rules={[{ required: true, message: "Address is required!" }]}
       hasFeedback
+      className={`w-${width ? width : "full"}`}
     >
-      <Input ref={placeAutoCompleteRef} placeholder="Enter your address" />
+      <Input
+        ref={placeAutoCompleteRef}
+        placeholder="Enter your address"
+        className="w-full"
+      />
     </Form.Item>
   );
 };
