@@ -10,23 +10,15 @@ import defaultImg from '../assets/images/default-user-image.png'
 const Header = ({ username, email, avatar }) => {
   const { logout } = AuthUser()
   const navigate = useNavigate()
-  const messageCount = 5
-  const notificationCount = 10
+  const messageCount = 0
+  const notificationCount = 0
 
   const handleLogout = () => {
     logout()
   }
 
   return (
-    <div className="bg-white h-16 px-4 flex items-center border-b border-gray-200 justify-between">
-      <div className="relative">
-        <HiOutlineSearch fontSize={20} className="text-gray-400 absolute top-1/2 left-3 -translate-y-1/2" />
-        <input
-          type="text"
-          placeholder="Search..."
-          className="text-sm focus:outline-none active:outline-none border border-gray-300 w-[24rem] h-10 pl-11 pr-4 rounded-sm"
-        />
-      </div>
+    <div className="bg-white h-16 px-4 flex items-center border-b border-gray-200 justify-end">
       <div className="flex items-center gap-2 mr-4">
         <Popover className="relative">
           {({ open }) => (
@@ -40,9 +32,11 @@ const Header = ({ username, email, avatar }) => {
                 <button type='button' className='bg-blue-100 px-2 py-2 rounded-full'>
                   <HiOutlineChatAlt fontSize={24} className='hover:text-blue-600 transition-colors duration-300' />
                 </button>
-                <span className="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full">
-                  {messageCount}
-                </span>
+                {messageCount !== 0 && (
+                  <span className="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full">
+                    {messageCount}
+                  </span>
+                )}
               </PopoverButton>
               <Transition
                 as={Fragment}
@@ -75,9 +69,11 @@ const Header = ({ username, email, avatar }) => {
                 <button type='button' className='bg-blue-100 px-2 py-2 rounded-full'>
                   <HiOutlineBell fontSize={24} className='hover:text-blue-600 transition-colors duration-300' />
                 </button>
-                <span className="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full">
-                  {notificationCount}
-                </span>
+                {notificationCount !== 0 && (
+                  <span className="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full">
+                    {notificationCount}
+                  </span>
+                )}
               </PopoverButton>
               <Transition
                 as={Fragment}
@@ -110,9 +106,11 @@ const Header = ({ username, email, avatar }) => {
                 <button type='button' className='bg-blue-100 px-2 py-2 rounded-full'>
                   <HiOutlineMail fontSize={24} className='hover:text-blue-600 transition-colors duration-300' />
                 </button>
-                <span className="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full">
-                  {messageCount}
-                </span>
+                {messageCount !== 0 && (
+                  <span className="absolute top-2 right-2 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-white transform translate-x-1/2 -translate-y-1/2 bg-blue-600 rounded-full">
+                    {messageCount}
+                  </span>
+                )}
               </PopoverButton>
               <Transition
                 as={Fragment}

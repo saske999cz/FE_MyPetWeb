@@ -774,6 +774,11 @@ const Profile = () => {
                       hasFeedback
                     >
                       <Input placeholder="Type here..." autoComplete="name" />
+                      <Input
+                        disabled
+                        placeholder='Type here...'
+                        autoComplete='name'
+                      />
                     </Form.Item>
                   </div>
                   <Form.Item label="Description" name="description">

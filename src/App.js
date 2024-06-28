@@ -36,6 +36,12 @@ import AppointmentList from "./page/medicalCenter/appointment/AppointmentList/Ap
 import AppointmentListOfDoctor from "./page/doctorAccount/appointment/AppointmentListOfDoctor";
 import { DataProvider } from "./context/DataProvider";
 import ExecuteAppointment from "./page/doctorAccount/ExecuteAppointment/ExecuteAppointment";
+import PetList from "./page/aidCenter/pet/PetList/PetList";
+import PetDetail from "./page/aidCenter/pet/PetDetail/PetDetail";
+import PetCreate from "./page/aidCenter/pet/PetCreate/PetCreate";
+import PetUpdate from "./page/aidCenter/pet/PetUpdate/PetUpdate";
+import AdoptRequestList from "./page/aidCenter/adoptRequest/AdoptRequestList/AdoptRequestList";
+
 
 function App() {
   const ROLE_ADMIN = "ROLE_ADMIN";
@@ -241,6 +247,90 @@ function App() {
                 }
               />
             </Route>
+            />
+            <Route
+              path="shop-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminShopDetail />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="medical-center-list"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminMedicalCenterList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="medical-center-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminMedicalCenterDetail />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="aid-center-list"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminAidCenterList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="aid-center-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminAidCenterDetail />
+                </AuthRoute>
+              }
+            />
+
+            {/* Aid Center routes */}
+            <Route
+              path="pet-list"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-create"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetCreate />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-view/:id"
+              element={
+              <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetDetail />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-update/:id"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetUpdate />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="adopt-request-list"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <AdoptRequestList />
+                </AuthRoute>
+              }
+            />
+          </Route>
 
             {/* Unauthorized Page */}
             <Route path="/unauthorized" element={<Unauthorized />} />
