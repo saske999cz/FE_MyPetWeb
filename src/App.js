@@ -30,15 +30,22 @@ import Settings from "./page/settings/Settings";
 import AdminShopDetail from "./page/admin/shop/ShopDetail/AdminShopDetail";
 import AdminMedicalCenterDetail from "./page/admin/medicalCenter/MedicalCenterDetail/AdminMedicalCenterDetail";
 import AdminAidCenterDetail from "./page/admin/aidCenter/AidCenterDetail/AdminAidCenterDetail";
+import DoctorList from "./page/medicalCenter/doctor/DoctorList/DoctorList";
+import DoctorCreate from "./page/medicalCenter/doctor/DoctorCreate/DoctorCreate";
+import AppointmentList from "./page/medicalCenter/appointment/AppointmentList/AppointmentList";
+import AppointmentListOfDoctor from "./page/doctorAccount/appointment/AppointmentListOfDoctor";
+import { DataProvider } from "./context/DataProvider";
+import ExecuteAppointment from "./page/doctorAccount/ExecuteAppointment/ExecuteAppointment";
 
 function App() {
   const ROLE_ADMIN = "ROLE_ADMIN";
   const ROLE_SHOP = "ROLE_SHOP";
   const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
   const ROLE_AID_CENTER = "ROLE_AID_CENTER";
+  const ROLE_DOCTOR = "ROLE_DOCTOR";
 
   const AuthRoute = ({ children, roles }) => {
-    const { role } = useAuth()
+    const { role } = useAuth();
 
     return roles.includes(role) ? (
       children
@@ -49,154 +56,201 @@ function App() {
 
   return (
     <div className="App">
-      <BrowserRouter>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register-shop" element={<RegisterShop />} />
-          <Route path="/register-shelter" element={<RegisterShelter />} />
-          <Route path="/register-medical-center" element={<RegisterMedicalCenter />} />
-          <Route path="/forgot-password" element={<ForgotPassword />} />
+      <DataProvider>
+        <BrowserRouter>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register-shop" element={<RegisterShop />} />
+            <Route path="/register-shelter" element={<RegisterShelter />} />
+            <Route
+              path="/register-medical-center"
+              element={<RegisterMedicalCenter />}
+            />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
-          {/* auth routes */}
-          <Route
-            path="/dashboard"
-            element={
-              <AuthRoute
-                roles={[
-                  ROLE_ADMIN,
-                  ROLE_SHOP,
-                  ROLE_MEDICAL_CENTER,
-                  ROLE_AID_CENTER,
-                ]}
-              >
-                <Layout />
-              </AuthRoute>
-            }
-          >
-            <Route index element={<Dashboard />} />
+            {/* auth routes */}
+            <Route
+              path="/dashboard"
+              element={
+                <AuthRoute
+                  roles={[
+                    ROLE_ADMIN,
+                    ROLE_SHOP,
+                    ROLE_MEDICAL_CENTER,
+                    ROLE_AID_CENTER,
+                    ROLE_DOCTOR,
+                  ]}
+                >
+                  <Layout />
+                </AuthRoute>
+              }
+            >
+              <Route index element={<Dashboard />} />
 
-            <Route path="support" element={<HelpSupport />} />
-            <Route path="settings" element={<Settings />} />
+              <Route path="support" element={<HelpSupport />} />
+              <Route path="settings" element={<Settings />} />
 
-            {/* Shop routes */}
-            <Route
-              path="product-list"
-              element={
-                <AuthRoute roles={[ROLE_SHOP]}>
-                  <ProductList />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="product-create"
-              element={
-                <AuthRoute roles={[ROLE_SHOP]}>
-                  <ProductCreate />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="product-view/:id"
-              element={
-                <AuthRoute roles={[ROLE_SHOP]}>
-                  <ProductDetail />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="product-update/:id"
-              element={
-                <AuthRoute roles={[ROLE_SHOP]}>
-                  <ProductUpdate />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="invoice-list"
-              element={
-                <AuthRoute roles={[ROLE_SHOP]}>
-                  <InvoiceList />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="invoice-view/:id"
-              element={
-                <AuthRoute roles={[ROLE_SHOP]}>
-                  <InvoiceDetail />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="profile"
-              element={
-                <AuthRoute roles={[ROLE_SHOP]}>
-                  <Profile />
-                </AuthRoute>
-              }
-            />
+              {/* Shop routes */}
+              <Route
+                path="product-list"
+                element={
+                  <AuthRoute roles={[ROLE_SHOP]}>
+                    <ProductList />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="product-create"
+                element={
+                  <AuthRoute roles={[ROLE_SHOP]}>
+                    <ProductCreate />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="product-view/:id"
+                element={
+                  <AuthRoute roles={[ROLE_SHOP]}>
+                    <ProductDetail />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="product-update/:id"
+                element={
+                  <AuthRoute roles={[ROLE_SHOP]}>
+                    <ProductUpdate />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="invoice-list"
+                element={
+                  <AuthRoute roles={[ROLE_SHOP]}>
+                    <InvoiceList />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="invoice-view/:id"
+                element={
+                  <AuthRoute roles={[ROLE_SHOP]}>
+                    <InvoiceDetail />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="profile"
+                element={
+                  <AuthRoute roles={[ROLE_SHOP]}>
+                    <Profile />
+                  </AuthRoute>
+                }
+              />
 
-            {/* Admin routes */}
-            <Route
-              path="shop-list"
-              element={
-                <AuthRoute roles={[ROLE_ADMIN]}>
-                  <AdminShopList />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="shop-view/:id"
-              element={
-                <AuthRoute roles={[ROLE_ADMIN]}>
-                  <AdminShopDetail />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="medical-center-list"
-              element={
-                <AuthRoute roles={[ROLE_ADMIN]}>
-                  <AdminMedicalCenterList />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="medical-center-view/:id"
-              element={
-                <AuthRoute roles={[ROLE_ADMIN]}>
-                  <AdminMedicalCenterDetail />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="aid-center-list"
-              element={
-                <AuthRoute roles={[ROLE_ADMIN]}>
-                  <AdminAidCenterList />
-                </AuthRoute>
-              }
-            />
-            <Route
-              path="aid-center-view/:id"
-              element={
-                <AuthRoute roles={[ROLE_ADMIN]}>
-                  <AdminAidCenterDetail />
-                </AuthRoute>
-              }
-            />
-          </Route>
+              {/* Admin routes */}
+              <Route
+                path="shop-list"
+                element={
+                  <AuthRoute roles={[ROLE_ADMIN]}>
+                    <AdminShopList />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="shop-view/:id"
+                element={
+                  <AuthRoute roles={[ROLE_ADMIN]}>
+                    <AdminShopDetail />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="medical-center-list"
+                element={
+                  <AuthRoute roles={[ROLE_ADMIN]}>
+                    <AdminMedicalCenterList />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="medical-center-view/:id"
+                element={
+                  <AuthRoute roles={[ROLE_ADMIN]}>
+                    <AdminMedicalCenterDetail />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="aid-center-list"
+                element={
+                  <AuthRoute roles={[ROLE_ADMIN]}>
+                    <AdminAidCenterList />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="aid-center-view/:id"
+                element={
+                  <AuthRoute roles={[ROLE_ADMIN]}>
+                    <AdminAidCenterDetail />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="doctor-list"
+                element={
+                  <AuthRoute roles={[ROLE_MEDICAL_CENTER]}>
+                    <DoctorList />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="doctor-create"
+                element={
+                  <AuthRoute roles={[ROLE_MEDICAL_CENTER]}>
+                    <DoctorCreate />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="appointment-list"
+                element={
+                  <AuthRoute roles={[ROLE_MEDICAL_CENTER]}>
+                    <AppointmentList />
+                  </AuthRoute>
+                }
+              />
 
-          {/* Unauthorized Page */}
-          <Route path="/unauthorized" element={<Unauthorized />} />
+              <Route
+                path="doctor-appointment-list"
+                element={
+                  <AuthRoute roles={[ROLE_DOCTOR]}>
+                    <AppointmentListOfDoctor />
+                  </AuthRoute>
+                }
+              />
+              <Route
+                path="execute-appointment"
+                element={
+                  <AuthRoute roles={[ROLE_DOCTOR]}>
+                    <ExecuteAppointment />
+                  </AuthRoute>
+                }
+              />
+            </Route>
 
-          {/* Not Found Page */}
-          <Route path="/not-found" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-      <ToastContainer />
+            {/* Unauthorized Page */}
+            <Route path="/unauthorized" element={<Unauthorized />} />
+
+            {/* Not Found Page */}
+            <Route path="/not-found" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+        <ToastContainer />
+      </DataProvider>
     </div>
   );
 }

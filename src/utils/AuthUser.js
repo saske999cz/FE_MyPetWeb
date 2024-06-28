@@ -10,35 +10,35 @@ export default function AuthUser() {
   const { accessToken, role, updateToken, updateRole, clearToken } = useAuth();
 
   const hasAccessToken = () => {
-    const accessTokenString = localStorage.getItem('access_token');
-    return !!accessTokenString
-  }
+    const accessTokenString = localStorage.getItem("access_token");
+    return !!accessTokenString;
+  };
 
   const hasUsername = () => {
-    const usernameString = localStorage.getItem('username');
-    return !!usernameString
-  }
+    const usernameString = localStorage.getItem("username");
+    return !!usernameString;
+  };
 
   const [userId, setUserId] = useState(() => {
-    const userIdString = localStorage.getItem('user_id');
+    const userIdString = localStorage.getItem("user_id");
     const userId = JSON.parse(userIdString);
     return userId;
   });
 
   const [username, setUsername] = useState(() => {
-    const usernameString = localStorage.getItem('username');
+    const usernameString = localStorage.getItem("username");
     const username = JSON.parse(usernameString);
     return username;
   });
 
   const [email, setEmail] = useState(() => {
-    const emailString = localStorage.getItem('email');
+    const emailString = localStorage.getItem("email");
     const email = JSON.parse(emailString);
     return email;
   });
 
   const [avatar, setAvatar] = useState(() => {
-    const avatarString = localStorage.getItem('avatar');
+    const avatarString = localStorage.getItem("avatar");
     const avatar = JSON.parse(avatarString);
     return avatar;
   });
@@ -48,32 +48,32 @@ export default function AuthUser() {
 
   const saveToken = (accessToken, user) => {
     updateToken(accessToken); // Sử dụng updateToken từ context
-    updateRole(user.role_name)
+    updateRole(user.role_name);
 
-    localStorage.setItem('user_id', JSON.stringify(user.id))
-    localStorage.setItem('username', JSON.stringify(user.username))
-    localStorage.setItem('email', JSON.stringify(user.email))
-    localStorage.setItem('avatar', JSON.stringify(user.avatar))
+    localStorage.setItem("user_id", JSON.stringify(user.id));
+    localStorage.setItem("username", JSON.stringify(user.username));
+    localStorage.setItem("email", JSON.stringify(user.email));
+    localStorage.setItem("avatar", JSON.stringify(user.avatar));
 
-    setUserId(user.id)
-    setUsername(user.username)
-    setEmail(user.email)
-    setAvatar(user.avatar)
-  }
+    setUserId(user.id);
+    setUsername(user.username);
+    setEmail(user.email);
+    setAvatar(user.avatar);
+  };
 
   const logout = () => {
     clearToken(); // Sử dụng clearToken từ context
-    localStorage.removeItem('user_id');
-    localStorage.removeItem('username');
-    localStorage.removeItem('email');
-    localStorage.removeItem('avatar');
-    localStorage.removeItem('shopAddress')
-    localStorage.removeItem('shopCoords')
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("username");
+    localStorage.removeItem("email");
+    localStorage.removeItem("avatar");
+    localStorage.removeItem("shopAddress");
+    localStorage.removeItem("shopCoords");
 
-    dispatch(removeAvatar(''));
-    navigate('/login')
+    dispatch(removeAvatar(""));
+    navigate("/login");
 
-    toast.success('Logout successful!', {
+    toast.success("Logout successful!", {
       position: "top-right",
       autoClose: 3000,
       hideProgressBar: false,
@@ -82,49 +82,53 @@ export default function AuthUser() {
       draggable: true,
       progress: undefined,
       theme: "colored",
-    })
-  }
+    });
+  };
 
   const http = axios.create({
-    baseURL: "http://127.0.0.1:8000/api",
+    baseURL: "https://gostoblogger.site/api",
     headers: {
-      "Content-Type": 'multipart/form-data',
-      "Authorization": `Bearer ${accessToken || ''}`, // Sử dụng accessToken từ context
-    }
+      "Content-Type": "multipart/form-data",
+      Authorization: `Bearer ${accessToken || ""}`, // Sử dụng accessToken từ context
+    },
   });
 
   http.interceptors.request.use(
-    config => {
+    (config) => {
       const token = accessToken; // Sử dụng accessToken từ context
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
       return config;
     },
-    error => {
+    (error) => {
       return Promise.reject(error);
     }
   );
-  
+
   http.interceptors.response.use(
-    response => {
+    (response) => {
       return response;
     },
-    async error => {
+    async (error) => {
       const originalRequest = error.config;
-  
-      if (error.response.status === 401 && error.response.data.new_token && !originalRequest._retry) {
+
+      if (
+        error.response.status === 401 &&
+        error.response.data.new_token &&
+        !originalRequest._retry
+      ) {
         originalRequest._retry = true;
         try {
           const newToken = error.response.data.new_token;
           updateToken(newToken); // Sử dụng updateToken từ context
-          originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
           return http(originalRequest);
         } catch (tokenRefreshError) {
           // Handle refresh token error here
           clearToken(); // Clear the token if refresh fails
-          navigate('/login'); // Redirect to login
-          toast.error('Session expired. Please log in again.', {
+          navigate("/login"); // Redirect to login
+          toast.error("Session expired. Please log in again.", {
             position: "top-right",
             autoClose: 3000,
             hideProgressBar: false,
@@ -137,7 +141,7 @@ export default function AuthUser() {
           return Promise.reject(tokenRefreshError);
         }
       }
-  
+
       return Promise.reject(error);
     }
   );
@@ -155,5 +159,5 @@ export default function AuthUser() {
     saveToken,
     setUsername,
     logout,
-  }
+  };
 }
