@@ -251,6 +251,7 @@ const AidCenterDashboard = () => {
     const fetchBannerAdoptRequest = async () => {
       try {
         const response = await http.get(`/aid-center/banner/adopt-request?option=${adoptRequestOption}`)
+        console.log(response)
         setAdoptRequestBanner(response.data.data)
         if (!isFirstFetchAdoptRequest) {
           toast.success('Adopt request filter applied successfully!', {
