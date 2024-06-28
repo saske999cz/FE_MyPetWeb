@@ -100,12 +100,6 @@ const ForgotPassword = () => {
                   <p className="text-white text-[16px] font-semibold">Submit</p>
                 </button>
               </Form>
-              <p className="text-[14px] text-gray-500 mt-4 w-full flex flex-row items-center justify-center">
-                Don't have an account? &nbsp;
-                <Link to="/register" className="text-amber-500 cursor-pointer" style={{ color: '#f59e0b' }}>
-                  Register Here
-                </Link>
-              </p>
             </div>
           </div>
         </div>

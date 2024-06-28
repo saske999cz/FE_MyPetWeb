@@ -25,77 +25,6 @@ import { LazyLoadImage } from 'react-lazy-load-image-component';
 import loadingImg from '../../../../assets/images/loading.png'
 import { useAuth } from '../../../../utils/AuthContext';
 
-function BoxWrapper({ children, className, menuPosition = 'bottom-0 right-4', isLastCard = false }) {
-  return (
-    <div className={`relative rounded-lg p-4 flex-1 flex items-center justify-between shadow-lg ${className}`}>
-      {children}
-      <Menu as="div" className={`absolute ${menuPosition}`}>
-        <MenuButton className="inline-flex justify-center w-10 h-10 text-gray-500 hover:text-gray-700">
-          {isLastCard ? (
-            <HiOutlineDotsHorizontal className="w-6 h-6" />
-          ) : (
-            <HiOutlineDotsVertical className="w-6 h-6" />
-          )}
-        </MenuButton>
-        <Transition
-          as={Fragment}
-          enter="transition ease-out duration-100"
-          enterFrom="transform opacity-0 scale-95"
-          enterTo="transform opacity-100 scale-100"
-          leave="transition ease-in duration-75"
-          leaveFrom="transform opacity-100 scale-100"
-          leaveTo="transform opacity-0 scale-95"
-        >
-          <MenuItems className="absolute right-0 w-44 -mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
-            <div className="py-1">
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
-                  >
-                    <FaClockRotateLeft />
-                    Last day
-                  </button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
-                  >
-                    <FaClockRotateLeft />
-                    Last week
-                  </button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
-                  >
-                    <FaClockRotateLeft />
-                    Last month
-                  </button>
-                )}
-              </MenuItem>
-              <MenuItem>
-                {({ focus }) => (
-                  <button
-                    className={`${focus ? 'bg-gray-100' : ''} flex items-center gap-2 p-2 text-sm text-gray-700 w-full`}
-                  >
-                    <FaClockRotateLeft />
-                    Last year
-                  </button>
-                )}
-              </MenuItem>
-            </div>
-          </MenuItems>
-        </Transition>
-      </Menu>
-    </div>
-  );
-}
-
 const ProductList = () => {
   const { http } = AuthUser()
   const { accessToken } = useAuth()
@@ -109,21 +38,6 @@ const ProductList = () => {
   const handleClickCreateButton = () => {
     navigate('/dashboard/product-create')
   }
-
-  // // --------------     PRODUCT BANNER     --------------
-  // const DEFAULT_CURRENT_PAGE_NUMBER = 1;
-  // const DEFAULT_PAGE_SIZE_NUMBER = 10;
-  // const allPageSize = [10, 20, 30];
-
-  // // --------------     RATING BANNER     --------------
-  // const DEFAULT_CURRENT_PAGE_NUMBER = 1;
-  // const DEFAULT_PAGE_SIZE_NUMBER = 10;
-  // const allPageSize = [10, 20, 30];
-
-  // // --------------     ORDER BANNER     --------------
-  // const DEFAULT_CURRENT_PAGE_NUMBER = 1;
-  // const DEFAULT_PAGE_SIZE_NUMBER = 10;
-  // const allPageSize = [10, 20, 30];
 
   // --------------     PAGINATION STATE     --------------
   const DEFAULT_CURRENT_PAGE_NUMBER = 1;
@@ -1189,50 +1103,6 @@ const ProductList = () => {
 
   return (
     <div className='flex flex-col gap-4'>
-      <div className='flex flex-row justify-between items-center gap-10 mt-4'>
-        <BoxWrapper className="bg-gradient-to-t from-blue-600 to-blue-400 text-white">
-          <div className="flex flex-col items-start justify-between w-full pl-2">
-            <div className="flex items-center">
-              <strong className="text-2xl font-bold">547</strong>
-            </div>
-            <div className="flex flex-col items-start">
-              <span className="text-xl font-semibold">Total Products</span>
-              <span className="text-md">+95% Last Month</span>
-            </div>
-          </div>
-          <div className='absolute -top-6 right-5 text-blue-300'>
-            <FaBagShopping size={50} />
-          </div>
-        </BoxWrapper>
-        <BoxWrapper className="bg-gradient-to-t from-green-600 to-green-400 text-white">
-          <div className="flex flex-col items-start justify-between w-full pl-2">
-            <div className="flex items-center">
-              <strong className="text-2xl font-bold">605</strong>
-            </div>
-            <div className="flex flex-col items-start">
-              <span className="text-xl font-semibold">Total Ratings</span>
-              <span className="text-md">+95% Last Month</span>
-            </div>
-          </div>
-          <div className='absolute -top-6 right-5 text-green-300'>
-            <MdCategory size={50} />
-          </div>
-        </BoxWrapper>
-        <BoxWrapper className="bg-gradient-to-t from-purple-600 to-purple-400 text-white">
-          <div className="flex flex-col items-start justify-between w-full pl-2">
-            <div className="flex items-center">
-              <strong className="text-2xl font-bold">428</strong>
-            </div>
-            <div className="flex flex-col items-start">
-              <span className="text-xl font-semibold">Total Orders</span>
-              <span className="text-md">+95% Last Month</span>
-            </div>
-          </div>
-          <div className='absolute -top-6 right-5 text-purple-300'>
-            <VscFeedback size={50} />
-          </div>
-        </BoxWrapper>
-      </div>
       <div className='flex flex-col items-start justify-between bg-white p-6 rounded-md'>
         <div className='flex flex-row items-start justify-end w-full mb-6'>
           <button

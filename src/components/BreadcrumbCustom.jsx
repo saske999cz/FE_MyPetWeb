@@ -7,6 +7,16 @@ const routesConfig = {
     title: 'Dashboard',
     breadcrumb: 'Dashboard',
   },
+  '/dashboard/support': {
+    title: 'Help & Support',
+    breadcrumb: 'Help & Support',
+  },
+  '/dashboard/settings': {
+    title: 'Settings',
+    breadcrumb: 'Settings',
+  },
+
+  // --------------------------     Shop Routes     --------------------------
   '/dashboard/product-list': {
     title: 'Product List',
     breadcrumb: 'Product List',
@@ -38,6 +48,60 @@ const routesConfig = {
   '/dashboard/profile': {
     title: 'Profile',
     breadcrumb: 'Profile',
+  },
+
+  // --------------------------     Admin Routes     --------------------------
+  '/dashboard/shop-list': {
+    title: ' Shop List',
+    breadcrumb: 'Shop List',
+  },
+  '/dashboard/shop-view': {
+    title: 'Shop List',
+    breadcrumb: 'Shop View',
+    parent: '/dashboard/shop-list',
+  },
+  '/dashboard/medical-center-list': {
+    title: ' Medical Center List',
+    breadcrumb: 'Medical Center List',
+  },
+  '/dashboard/medical-center-view': {
+    title: 'Medical Center View',
+    breadcrumb: 'Medical Center View',
+    parent: '/dashboard/medical-center-list',
+  },
+  '/dashboard/aid-center-list': {
+    title: ' Aid Center List',
+    breadcrumb: 'Aid Center List',
+  },
+  '/dashboard/aid-center-view': {
+    title: 'Aid Center View',
+    breadcrumb: 'Aid Center View',
+    parent: '/dashboard/aid-center-list',
+  },
+
+  // --------------------------     Aid Center Routes     --------------------------
+  '/dashboard/pet-list': {
+    title: 'Pet List',
+    breadcrumb: 'Pet List',
+  },
+  '/dashboard/pet-view': {
+    title: 'Pet View',
+    breadcrumb: 'Pet View',
+    parent: '/dashboard/pet-list',
+  },
+  '/dashboard/pet-create': {
+    title: 'Pet Create',
+    breadcrumb: 'Pet Create',
+    parent: '/dashboard/pet-list',
+  },
+  '/dashboard/pet-update': {
+    title: 'Pet Update',
+    breadcrumb: 'Pet Update',
+    parent: '/dashboard/pet-list',
+  },
+  '/dashboard/adopt-request-list': {
+    title: ' Adopt Request List',
+    breadcrumb: 'Adopt Request List',
   },
 };
 

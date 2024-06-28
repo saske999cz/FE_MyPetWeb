@@ -16,8 +16,9 @@ import { Link } from 'react-router-dom';
 import { getDownloadURL, listAll, ref } from 'firebase/storage';
 import { storage } from '../../../utils/firebase';
 import { BeatLoader } from 'react-spinners';
-import getOrderStatus from '../../../utils/orderStatus';
-import './Dashboard.scss';
+import { geocodeByAddress, getLatLng } from 'react-google-places-autocomplete';
+import './ShopDashboard.scss';
+import { getOrderStatus } from '../../../utils/statusLabel';
 const { Option } = Select;
 
 function BoxWrapper({
@@ -130,7 +131,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
   )
 }
 
-const Dashboard = () => {
+const ShopDashboard = () => {
   const { http } = AuthUser()
   const [loading, setLoading] = useState(true);
 
@@ -189,6 +190,36 @@ const Dashboard = () => {
   const handleChangeSelledYear = (value) => {
     setSelectedSelledYear(value)
   };
+
+  // Get shop address location
+  useEffect(() => {
+    const getCoords = async () => {
+      try {
+        const response = await http.get('/shop/profile/address')
+        const address = response.data.data
+        const results = await geocodeByAddress(address)
+        const latLng = await getLatLng(results[0])
+
+        localStorage.setItem('shopAddress', address)
+        localStorage.setItem('shopCoords', JSON.stringify(latLng))
+      } catch (error) {
+        console.log(error)
+        toast.error('Invalid address', {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+          theme: "colored",
+        })
+      }
+    }
+
+    getCoords()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   // --------------------------     Fetch Firebase Image     --------------------------
   const fetchImages = (imagePath, callback) => {
@@ -737,8 +768,8 @@ const Dashboard = () => {
           </div>
         </div>
       </div>
-      <div className="flex flex-row gap-4 w-full dashboard-container">
-        <div className="bg-white px-4 pt-3 pb-4 rounded-sm border border-gray-200 flex-1">
+      <div className="flex flex-row gap-4 w-full">
+        <div className="bg-white px-4 pt-3 pb-4 rounded-sm border border-gray-200 flex-1 dashboard-container">
           <strong className="text-gray-700 font-medium">Recent Orders</strong>
           <div className="border-x border-gray-200 rounded-sm mt-3">
             <table className="w-full text-gray-700">
@@ -812,4 +843,4 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+export default ShopDashboard

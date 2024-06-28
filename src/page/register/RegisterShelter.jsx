@@ -1,28 +1,31 @@
-import React, { useRef, useState, useEffect, useMemo } from "react";
+import React, { useState } from "react";
 import { Form, Input, Steps, Select } from "antd";
 import { Link, useNavigate } from "react-router-dom";
 import logoBlack from "../../assets/images/LogoBlack.png";
 import "./Register.scss";
 import PlaceAutocompleteInput from "../../components/PlaceAutoCompleteInput";
+import Swal from "sweetalert2";
+import { toast } from "react-toastify";
+import AuthUser from "../../utils/AuthUser";
 
 const RegisterShelter = () => {
+  const { http } = AuthUser();
   const navigate = useNavigate();
+
   const [form] = Form.useForm();
-  const ROLE_ADMIN = "ROLE_ADMIN";
-  const ROLE_SHOP = "ROLE_SHOP";
-  const ROLE_MEDICAL_CENTER = "ROLE_MEDICAL_CENTER";
-  const ROLE_AID_CENTER = "ROLE_AID_CENTER";
-  const [shopData, setShopData] = useState({
+
+  const [aidCenterData, setAidCenterData] = useState({
+    username: "",
     email: "",
     password: "",
     confirm_password: "",
-    phone: null,
+    phone: "",
     website: "",
     fanpage: "",
     name: "",
     address: "",
     work_time: "",
-    established_year: "",
+    establish_year: "",
   });
   const [currentStep, setCurrentStep] = useState(0);
 
@@ -39,30 +42,92 @@ const RegisterShelter = () => {
     navigate("/");
   };
 
-  const onFinish = (value) => {
+  const formatTime = (timeObj) => {
+    const hour = parseInt(timeObj.time, 10);
+    const formattedHour = hour < 10 ? `0${hour}` : hour.toString();
+    return `${formattedHour}:00 ${timeObj.ampm}`;
+  };
+
+  const onFinish = async (values) => {
     if (currentStep === 0) {
-      setShopData({
-        ...shopData,
-        email: value.email,
-        password: value.password,
-        confirm_password: value.confirmPassword,
+      setAidCenterData({
+        ...aidCenterData,
+        username: values.username,
+        email: values.email,
+        password: values.password,
+        confirm_password: values.confirmPassword,
       });
       setCurrentStep(1);
     } else if (currentStep === 1) {
-      setShopData({
-        ...shopData,
-        phone: value.phone,
-        website: value.website,
-        fanpage: value.fanpage,
+      setAidCenterData({
+        ...aidCenterData,
+        phone: values.phone,
+        website: values.website,
+        fanpage: values.fanpage,
       });
       setCurrentStep(2);
     } else {
-      setShopData({
-        ...shopData,
-        name: value.name,
-        work_time: value.work_time,
+      setAidCenterData({
+        ...aidCenterData,
+        name: values.name,
+        work_time: values.work_time,
+        address: values.address,
+        establish_year: values.establish_year,
       });
-      console.log(shopData.address);
+      
+      try {
+        Swal.fire({
+          title: 'Processing...',
+          text: 'Please wait',
+          allowOutsideClick: false,
+          showConfirmButton: false,
+          icon: 'info',
+          willOpen: () => {
+            Swal.showLoading();
+          }
+        });
+
+        const openingTime = formatTime(values.work_time.opening);
+        const closingTime = formatTime(values.work_time.closing);
+  
+        const formattedWorkTime = `${openingTime} : ${closingTime}`
+  
+        const form = new FormData();
+        form.append("username", aidCenterData.username);
+        form.append("email", aidCenterData.email);
+        form.append("password", aidCenterData.password);
+        form.append("confirm_password", aidCenterData.confirm_password);
+        form.append("phone", aidCenterData.phone);
+        form.append("name", values.name);
+        form.append("address", values.address);
+        form.append("work_time", formattedWorkTime);
+        form.append("establish_year", values.establish_year);
+
+        if (aidCenterData.website) {
+          form.append("website", aidCenterData.website);
+        }
+
+        if (aidCenterData.fanpage) {
+          form.append("fanpage", aidCenterData.fanpage);
+        }
+
+        await http.post("/auth/register-aid-center", form);
+
+        Swal.fire({
+          title: 'The request has been sent',
+          text: 'Please wait for the admin team to approve your account',
+          icon: 'success',
+        }).then(() => {
+          navigate(0)
+        })
+      } catch(error) {
+        console.log(error);
+        Swal.fire({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'error',
+        });
+      }
     }
   };
 
@@ -85,7 +150,19 @@ const RegisterShelter = () => {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const onFinishFailed = () => {};
+  const onFinishFailed = (errorInfo) => {
+    console.log('Failed:', errorInfo);
+    toast.error('Please input all fields', {
+      position: "top-right",
+      autoClose: 3000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+      theme: "colored",
+    })
+  };
 
   return (
     <div className="register_container w-screen h-screen bg-orange-300 flex flex-row items-center justify-center">
@@ -125,7 +202,7 @@ const RegisterShelter = () => {
                   className="w-full"
                   form={form}
                   layout="vertical"
-                  name="login_form"
+                  name="register_form"
                   labelAlign="left"
                   labelWrap="true"
                   size="large"
@@ -230,7 +307,7 @@ const RegisterShelter = () => {
                   className="w-full"
                   form={form}
                   layout="vertical"
-                  name="login_form"
+                  name="register_form"
                   labelAlign="left"
                   labelWrap="true"
                   size="large"
@@ -257,13 +334,6 @@ const RegisterShelter = () => {
                   <Form.Item
                     label="Website"
                     name="website"
-                    rules={[
-                      {
-                        required: false,
-                        message: "Email is required!",
-                      },
-                    ]}
-                    hasFeedback
                   >
                     <Input
                       placeholder="www.google.com"
@@ -273,14 +343,6 @@ const RegisterShelter = () => {
                   <Form.Item
                     label="Fanpage"
                     name="fanpage"
-                    className=""
-                    rules={[
-                      {
-                        required: false,
-                        message: "Password is required!",
-                      },
-                    ]}
-                    hasFeedback
                   >
                     <Input
                       placeholder="www.facebook.com"
@@ -313,7 +375,7 @@ const RegisterShelter = () => {
                   className="w-full"
                   form={form}
                   layout="vertical"
-                  name="login_form"
+                  name="register_form"
                   labelAlign="left"
                   labelWrap="true"
                   size="large"
@@ -325,19 +387,19 @@ const RegisterShelter = () => {
                   }}
                 >
                   <Form.Item
-                    label="Shop Name"
+                    label="Aid Center Name"
                     name="name"
                     rules={[
                       {
                         required: true,
-                        message: "Shop name is required!",
+                        message: "Aid center name is required!",
                       },
                     ]}
                     hasFeedback
                   >
                     <Input placeholder="Amazon" autoComplete="name" />
                   </Form.Item>
-                  <PlaceAutocompleteInput setData={setShopData} form={form} />
+                  <PlaceAutocompleteInput setData={setAidCenterData} form={form} />
                   <Form.Item
                     label="Working Hours"
                     name="work_time"
@@ -470,7 +532,7 @@ const RegisterShelter = () => {
                   </Form.Item>
                   <Form.Item
                     label="Established Year"
-                    name="established_year"
+                    name="establish_year"
                     rules={[
                       {
                         required: true,
@@ -479,7 +541,7 @@ const RegisterShelter = () => {
                     ]}
                     hasFeedback
                   >
-                    <Input placeholder="2021" autoComplete="established_year" />
+                    <Input placeholder="2024" autoComplete="establish_year" />
                   </Form.Item>
 
                   <div className="w-full h-fit flex flex-row items-center justify-center">

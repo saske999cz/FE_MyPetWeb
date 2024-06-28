@@ -51,22 +51,16 @@ const Profile = () => {
   const [currentAvatarUrls, setCurrentAvatarUrls] = useState([]);
   const [currentCertificationUrls, setCurrentCertificationUrls] = useState([]);
 
-  const [location, setLocation] = useState('');
-  const [coords, setCoords] = useState({
-    lat: 10.99835602,
-    lng: 77.01502627
+  const [location, setLocation] = useState(() => {
+    const storedAddress = localStorage.getItem('shopAddress');
+    console.log(typeof storedAddress)
+    return storedAddress ?? '';
+  });
+
+  const [coords, setCoords] = useState(() => {
+    const storedCoords = localStorage.getItem('shopCoords');
+    return storedCoords ? JSON.parse(storedCoords) : { lat: 0, lng: 0 };
   })
-
-  const [mapsLoaded, setMapsLoaded] = useState(false);
-
-  useEffect(() => {
-    const checkGoogleMapsLoaded = setInterval(() => {
-      if (window.google && window.google.maps) {
-        setMapsLoaded(true);
-        clearInterval(checkGoogleMapsLoaded);
-      }
-    }, 1000);
-  }, []);
 
   const handleEditProfile = () => {
     setEditProfileMode(true);
@@ -474,32 +468,32 @@ const Profile = () => {
   // Get shop address location
   useEffect(() => {
     const getCoords = async () => {
-      if (location && mapsLoaded) {
+      if (!loading) {
         try {
-          console.log(location)
-          console.log(await geocodeByAddress(location))
-          const results = await geocodeByAddress(location)
-          const latLng = await getLatLng(results[0])
-          setCoords(latLng)
+          console.log(location);
+          const results = await geocodeByAddress(location);
+          console.log(results);
+          const latLng = await getLatLng(results[0]);
+          setCoords(latLng);
         } catch (error) {
-          console.log(error)
+          console.log(error);
           toast.error('Invalid address', {
-            position: "top-right",
+            position: 'top-right',
             autoClose: 3000,
             hideProgressBar: false,
             closeOnClick: true,
             pauseOnHover: true,
             draggable: true,
             progress: undefined,
-            theme: "colored",
-          })
+            theme: 'colored',
+          });
         }
       }
-    }
+    };
 
-    getCoords()
+    getCoords();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [location, mapsLoaded])
+  }, [location]);
 
   useEffect(() => {
     if (shopProfile && shopProfile.work_time) {
@@ -700,6 +694,7 @@ const Profile = () => {
                       hasFeedback
                     >
                       <Input
+                        disabled
                         placeholder='Type here...'
                         autoComplete='name'
                       />

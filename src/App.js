@@ -1,7 +1,6 @@
 import "./css/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./page/LandingPage";
-import Dashboard from "./page/shop/dashboard/Dashboard";
 import Layout from "./layouts/layout";
 import ScrollToTop from "./utils/ScrollToTop";
 import { ToastContainer } from "react-toastify";
@@ -13,7 +12,7 @@ import NotFound from "./page/notFound/NotFound";
 import InvoiceList from "./page/shop/invoice/InvoiceList/InvoiceList";
 import InvoiceDetail from "./page/shop/invoice/InvoiceDetail/InvoiceDetail";
 import Login from "./page/login/Login";
-import Register from "./page/register/Register";
+import RegisterShop from "./page/register/RegisterShop";
 import RegisterMedicalCenter from "./page/register/RegisterMedicalCenter";
 import RegisterShelter from "./page/register/RegisterShelter";
 import ForgotPassword from "./page/forgotPassword/ForgotPassword";
@@ -21,6 +20,21 @@ import "react-toastify/dist/ReactToastify.css";
 import "react-lazy-load-image-component/src/effects/blur.css";
 import ProductCreate from "./page/shop/product/ProductCreate/ProductCreate";
 import Profile from "./page/profile/Profile";
+import Dashboard from "./page/Dashboard";
+import { useAuth } from "./utils/AuthContext";
+import AdminShopList from "./page/admin/shop/ShopList/AdminShopList";
+import AdminMedicalCenterList from "./page/admin/medicalCenter/MedicalCenterList/AdminMedicalCenterList";
+import AdminAidCenterList from "./page/admin/aidCenter/AidCenterList/AdminAidCenterList";
+import HelpSupport from "./page/HelpSupport";
+import Settings from "./page/settings/Settings";
+import AdminShopDetail from "./page/admin/shop/ShopDetail/AdminShopDetail";
+import AdminMedicalCenterDetail from "./page/admin/medicalCenter/MedicalCenterDetail/AdminMedicalCenterDetail";
+import AdminAidCenterDetail from "./page/admin/aidCenter/AidCenterDetail/AdminAidCenterDetail";
+import PetList from "./page/aidCenter/pet/PetList/PetList";
+import PetDetail from "./page/aidCenter/pet/PetDetail/PetDetail";
+import PetCreate from "./page/aidCenter/pet/PetCreate/PetCreate";
+import PetUpdate from "./page/aidCenter/pet/PetUpdate/PetUpdate";
+import AdoptRequestList from "./page/aidCenter/adoptRequest/AdoptRequestList/AdoptRequestList";
 
 function App() {
   const ROLE_ADMIN = "ROLE_ADMIN";
@@ -29,7 +43,7 @@ function App() {
   const ROLE_AID_CENTER = "ROLE_AID_CENTER";
 
   const AuthRoute = ({ children, roles }) => {
-    const role = localStorage.getItem("role")?.replace(/"/g, "");
+    const { role } = useAuth()
 
     return roles.includes(role) ? (
       children
@@ -45,12 +59,9 @@ function App() {
         <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<Login />} />
-          <Route path="/register-shop" element={<Register />} />
+          <Route path="/register-shop" element={<RegisterShop />} />
           <Route path="/register-shelter" element={<RegisterShelter />} />
-          <Route
-            path="/register-medical-center"
-            element={<RegisterMedicalCenter />}
-          />
+          <Route path="/register-medical-center" element={<RegisterMedicalCenter />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* auth routes */}
@@ -70,6 +81,9 @@ function App() {
             }
           >
             <Route index element={<Dashboard />} />
+
+            <Route path="support" element={<HelpSupport />} />
+            <Route path="settings" element={<Settings />} />
 
             {/* Shop routes */}
             <Route
@@ -125,6 +139,98 @@ function App() {
               element={
                 <AuthRoute roles={[ROLE_SHOP]}>
                   <Profile />
+                </AuthRoute>
+              }
+            />
+
+            {/* Admin routes */}
+            <Route
+              path="shop-list"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminShopList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="shop-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminShopDetail />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="medical-center-list"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminMedicalCenterList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="medical-center-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminMedicalCenterDetail />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="aid-center-list"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminAidCenterList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="aid-center-view/:id"
+              element={
+                <AuthRoute roles={[ROLE_ADMIN]}>
+                  <AdminAidCenterDetail />
+                </AuthRoute>
+              }
+            />
+
+            {/* Aid Center routes */}
+            <Route
+              path="pet-list"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetList />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-create"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetCreate />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-view/:id"
+              element={
+              <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetDetail />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="pet-update/:id"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <PetUpdate />
+                </AuthRoute>
+              }
+            />
+            <Route
+              path="adopt-request-list"
+              element={
+                <AuthRoute roles={[ROLE_AID_CENTER]}>
+                  <AdoptRequestList />
                 </AuthRoute>
               }
             />
